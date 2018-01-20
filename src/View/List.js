@@ -15,34 +15,45 @@ const flexP = {
     padding: '0 10px'
 }
 
+const minWidth = 32;
+
 const defaultStyle = {
     container      : {
         ...flexP,
-        flexDirection: 'row'
+        flexDirection: 'row',
+        margin : '4px 0',
+        padding: '8px',
     },
     dateContainer  : {
         ...flexP,
+        minWidth: 200,
+        width   : '20%',
     },
     eventsContainer: {
         ...flexP,
-        flexDirection: ' column'
+        flexDirection: ' column',
+        minWidth     : 400,
+        width        : '60%',
     },
-    eventContainer : {
+    eventContainer : (i) => ({
         display        : 'flex',
-        backgroundColor: 'rgba(0.3, 0.3, 0.3, 0.2)',
-        borderRadius   : '10px',
-        justifyContent : 'space-between'
+        backgroundColor: !(i % 2) ? 'rgba(10, 10, 10, 0.2)' : 'transparent',
+        justifyContent : 'flex-start'
+    }),
+    hourLimit      : {
+        minWidth,
+        marginRight: 4,
     },
-    hourLimit : {
-        padding: '0 16px',
+    creator        : {
+        minWidth
     },
-    creator : {
-        padding: '0 16px',
-    },
-    title : {
-        padding: '0 16px',
+    title          : {
+        minWidth,
         fontWeight: 'bold',
-    }
+    },
+    weekContainer  : {
+    },
+    monthContainer : {}
 }
 
 export class List extends Parent {
@@ -51,6 +62,7 @@ export class List extends Parent {
     }
 
     renderDay({date, events}) {
+        console.log(events)
         return (
             <div style={defaultStyle.container}>
                 <div style={defaultStyle.dateContainer}>
@@ -63,17 +75,17 @@ export class List extends Parent {
                             b = new Date(b.start)
                             return a < b ? -1 : a > b ? 1 : 0
                         }).map((e, i) => {
-                            const key = e._id || i;
+                            const key = e._id || i
                             return (
-                                <div key={key} style={defaultStyle.eventContainer}>
+                                <div key={key} style={defaultStyle.eventContainer(i)}>
                                     <div role='hour-limit' style={defaultStyle.hourLimit}>
-                                        {`${moment(e.start).format('hh:mm')} - ${moment(e.end).format('hh:mm')}`}
+                                        {`${moment(e.start).format('HH:mm')} - ${moment(e.end).format('HH:mm')}`}
                                     </div>
                                     <div role='creator' style={defaultStyle.creator}>
                                         {e.creator}
                                     </div>
-                                    <div role='title' style={defaultStyle.title}>
-                                        {e.title}
+                                    <div role='module' style={defaultStyle.title}>
+                                        {e.module}
                                     </div>
                                 </div>
                             )
@@ -87,48 +99,69 @@ export class List extends Parent {
     renderWeek({date, events}) {
         function getMonday(d) {
             const day = d.getDay(),
-                diff = d.getDate() - day + (day === 0 ? -6:1);
-            return new Date(new Date(d).setDate(diff));
+                diff = d.getDate() - day + (day === 0 ? -6 : 1)
+            return new Date(new Date(d).setDate(diff))
         }
+
         const monday = getMonday(date)
         let days = []
         for (let i = 0; i < 7; i++) {
             const Day = this.renderDay.bind(this)
             const d = new Date(new Date(monday).setDate(monday.getDate() + i))
-            const day = d.getDate()
-            const isToday = (e) => (e.start.getDate() === day || e.end.getDate() === day)
-            days.push(<Day {...{date: d, events: events.filter(isToday)}} key={moment(d).format('DDDD dd MMMM YYYY')}/>)
+            const [date, month, year] = [d.getDate(), d.getMonth(), d.getFullYear()]
+            const isToday = (e) => {
+                const [s, f] = [moment(e.start), moment(e.end)]
+                return (s.date() === date && s.month() === month && s.year() === year) ||
+                    (f.date() === date && f.month() === month && f.year() === year)
+            }
+            days.push(
+                <Day {...{date: d, events: events.filter(isToday)}}
+                     key={moment(d).format('DD MM YY')}/>
+            )
+            days.push(<hr/>)
         }
-        return days
+        return (
+            <div style={defaultStyle.weekContainer}>
+                {days}
+            </div>
+        )
     }
 
     renderMonth({date, events}) {
         function getFirstDayOfTheMonth(d) {
             const date = d.getDate(),
                 diff = (d.getDate() - date) + 1
-            return new Date(new Date(d).setDate(diff));
+            return new Date(new Date(d).setDate(diff))
         }
+
         function getLastDayOfTheMonth(d) {
             const date = d.getDate(),
                 diff = (d.getDate() - date) + 1,
-                month = d.getMonth(),
                 next_month = d.getMonth() + 1,
                 first = new Date(new Date(d).setDate(diff)),
                 firstNextMonth = new Date(first.setMonth(next_month)),
-                lastDayOfLastMonth = new Date(firstNextMonth.setDate(firstNextMonth.getDate() - 1));
+                lastDayOfLastMonth = new Date(firstNextMonth.setDate(firstNextMonth.getDate() - 1))
             return lastDayOfLastMonth
         }
+
         const first = getFirstDayOfTheMonth(date)
-        const last = getLastDayOfTheMonth(date);
+        const last = getLastDayOfTheMonth(date)
         let weeks = []
         for (let i = 0; i <= last.getDate() - first.getDate(); i += 7) {
             const Week = this.renderWeek.bind(this)
             const d = new Date(new Date(first).setDate(first.getDate() + i))
-            const week = moment(d).week();
+            const week = moment(d).week()
             const isWeek = (e) => (moment(e.start).week() === week || moment(e.end).week() === week)
-            weeks.push(<Week {...{date: d, events: events.filter(isWeek)}} key={moment(d).format('DDDD dd MMMM YYYY')} />)
+            weeks.push(
+                <Week {...{date: d, events: events.filter(isWeek)}}
+                      key={moment(d).format('MM YYYY')}/>
+            )
         }
-        return weeks;
+        return (
+            <div style={defaultStyle.weekContainer}>
+                {weeks}
+            </div>
+        )
     }
 
     render() {

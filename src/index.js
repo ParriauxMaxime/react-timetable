@@ -95,6 +95,7 @@ export default class extends Component {
                     date             : this.state.date,
                     view             : this.state.view,
                 }}/>
+                <hr/>
                 <Body/>
             </div>
         )

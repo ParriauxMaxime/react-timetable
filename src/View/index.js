@@ -6,7 +6,7 @@
  ** 2017 - All rights reserved
  ***************************************/
 
-import React, {Component} from 'react'
+import React from 'react'
 import moment from 'moment'
 import {DURATION} from '../index'
 
@@ -16,29 +16,52 @@ export default class extends React.Component {
     }
 
     getDaily(events) {
-        const date = this.props.date.getDate();
-        const isToday = (e) => (e.start.getDate() === date || e.end.getDate() === date)
+        const d = moment(this.props.date)
+        const date = d.date()
+        const month = d.month()
+        const year = d.year()
+        const isToday = (e) => {
+            const [s, f] = [moment(e.start), moment(e.end)]
+            return (s.date() === date && s.month() === month && s.year() === year) ||
+                (f.date() === date && f.month() === month && f.year() === year)
+        };
         return events.filter(isToday)
     }
 
     getWeekly(events) {
-        const week = moment(this.props.date).week();
-        const isWeek = (e) => (moment(e.start).week() === week || moment(e.end).week() === week)
+        const d = moment(this.props.date);
+        const week = d.week();
+        const year = d.year();
+        const isWeek = (e) => {
+            const [s, f] = [moment(e.start), moment(e.end)]
+            return (s.week() === week && s.year() === year) ||
+                (f.week() === week && f.year() === year)
+        };
         return events.filter(isWeek)
     }
 
     getMonthly(events) {
-        const month = moment(this.props.date).month();
-        const isMonth = (e) => (moment(e.start).month() === month || moment(e.end).month() === month);
-        return events.filter(isMonth);
+        const d = moment(this.props.date);
+        const month = d.month()
+        const year = d.year()
+        const isMonth = (e) => {
+            const [s, f] = [moment(e.start), moment(e.end)]
+            return (s.month() === month && s.year() === year) ||
+                (f.month() === month && f.year() === year)
+        };
+        return events.filter(isMonth)
     }
 
     getEvents({events, duration}) {
         switch (duration) {
-            case DURATION.month: return this.getMonthly(events);
-            case DURATION.week: return this.getWeekly(events);
-            case DURATION.day: return this.getDaily(events);
-            default: return null;
+            case DURATION.month:
+                return this.getMonthly(events)
+            case DURATION.week:
+                return this.getWeekly(events)
+            case DURATION.day:
+                return this.getDaily(events)
+            default:
+                return null
         }
     }
 
@@ -57,7 +80,8 @@ export default class extends React.Component {
             case DURATION.month: {
                 return <Month {...this.props} events={events}/>
             }
-            default: return null;
+            default:
+                return null
         }
     }
 }
