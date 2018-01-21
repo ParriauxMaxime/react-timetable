@@ -9,20 +9,21 @@
 import React from 'react'
 import Parent from './index'
 import moment from 'moment'
+import {getToday} from '../util'
 
 const flexP = {
     display: 'flex',
     padding: '0 10px'
 }
 
-const minWidth = 32;
+const minWidth = 32
 
 const defaultStyle = {
     container      : {
         ...flexP,
         flexDirection: 'row',
-        margin : '4px 0',
-        padding: '8px',
+        margin       : '4px 0',
+        padding      : '8px',
     },
     dateContainer  : {
         ...flexP,
@@ -51,8 +52,7 @@ const defaultStyle = {
         minWidth,
         fontWeight: 'bold',
     },
-    weekContainer  : {
-    },
+    weekContainer  : {},
     monthContainer : {}
 }
 
@@ -62,7 +62,8 @@ export class List extends Parent {
     }
 
     renderDay({date, events}) {
-        console.log(events)
+        if (this.props.renderDay)
+            return this.props.renderDay({date, events})
         return (
             <div style={defaultStyle.container}>
                 <div style={defaultStyle.dateContainer}>
@@ -97,6 +98,9 @@ export class List extends Parent {
     }
 
     renderWeek({date, events}) {
+        if (this.props.renderWeek)
+            return this.props.renderWeek({date, events})
+
         function getMonday(d) {
             const day = d.getDay(),
                 diff = d.getDate() - day + (day === 0 ? -6 : 1)
@@ -116,9 +120,9 @@ export class List extends Parent {
             }
             days.push(
                 <Day {...{date: d, events: events.filter(isToday)}}
-                     key={moment(d).format('DD MM YY')}/>
+                     key={`${moment(d).format('DD MM YYYY')}-${i}`}/>
             )
-            days.push(<hr/>)
+            days.push(<hr key={`sorryBadDesignPattern-${i}`}/>)
         }
         return (
             <div style={defaultStyle.weekContainer}>
@@ -128,6 +132,9 @@ export class List extends Parent {
     }
 
     renderMonth({date, events}) {
+        if (this.props.renderMonth)
+            return this.props.renderMonth({date, events})
+
         function getFirstDayOfTheMonth(d) {
             const date = d.getDate(),
                 diff = (d.getDate() - date) + 1
@@ -135,31 +142,30 @@ export class List extends Parent {
         }
 
         function getLastDayOfTheMonth(d) {
+            //DUUUH
             const date = d.getDate(),
                 diff = (d.getDate() - date) + 1,
                 next_month = d.getMonth() + 1,
                 first = new Date(new Date(d).setDate(diff)),
-                firstNextMonth = new Date(first.setMonth(next_month)),
-                lastDayOfLastMonth = new Date(firstNextMonth.setDate(firstNextMonth.getDate() - 1))
-            return lastDayOfLastMonth
+                firstNextMonth = new Date(first.setMonth(next_month))
+            return new Date(firstNextMonth.setDate(firstNextMonth.getDate() - 1))
         }
 
         const first = getFirstDayOfTheMonth(date)
         const last = getLastDayOfTheMonth(date)
-        let weeks = []
-        for (let i = 0; i <= last.getDate() - first.getDate(); i += 7) {
-            const Week = this.renderWeek.bind(this)
+        let days = []
+        for (let i = 0; i <= last.getDate() - first.getDate(); i++) {
+            const Day = this.renderDay.bind(this)
             const d = new Date(new Date(first).setDate(first.getDate() + i))
-            const week = moment(d).week()
-            const isWeek = (e) => (moment(e.start).week() === week || moment(e.end).week() === week)
-            weeks.push(
-                <Week {...{date: d, events: events.filter(isWeek)}}
-                      key={moment(d).format('MM YYYY')}/>
+            days.push(
+                <Day {...{date: d, events: getToday(events, d)}}
+                      key={`${moment(d).format('MM YYYY')}-${i}`}/>
             )
+            days.push(<hr key={`hr-${moment(d).format('MM YYYY')}-${i}`}/>)
         }
         return (
             <div style={defaultStyle.weekContainer}>
-                {weeks}
+                {days}
             </div>
         )
     }

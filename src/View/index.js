@@ -9,6 +9,8 @@
 import React from 'react'
 import moment from 'moment'
 import {DURATION} from '../index'
+import {getToday, getWeek, getMonth} from '../util'
+
 
 export default class extends React.Component {
     constructor(props) {
@@ -16,40 +18,15 @@ export default class extends React.Component {
     }
 
     getDaily(events) {
-        const d = moment(this.props.date)
-        const date = d.date()
-        const month = d.month()
-        const year = d.year()
-        const isToday = (e) => {
-            const [s, f] = [moment(e.start), moment(e.end)]
-            return (s.date() === date && s.month() === month && s.year() === year) ||
-                (f.date() === date && f.month() === month && f.year() === year)
-        };
-        return events.filter(isToday)
+        return getToday(events, this.props.date)
     }
 
     getWeekly(events) {
-        const d = moment(this.props.date);
-        const week = d.week();
-        const year = d.year();
-        const isWeek = (e) => {
-            const [s, f] = [moment(e.start), moment(e.end)]
-            return (s.week() === week && s.year() === year) ||
-                (f.week() === week && f.year() === year)
-        };
-        return events.filter(isWeek)
+        return getWeek(events, this.props.date)
     }
 
     getMonthly(events) {
-        const d = moment(this.props.date);
-        const month = d.month()
-        const year = d.year()
-        const isMonth = (e) => {
-            const [s, f] = [moment(e.start), moment(e.end)]
-            return (s.month() === month && s.year() === year) ||
-                (f.month() === month && f.year() === year)
-        };
-        return events.filter(isMonth)
+        return getMonth(events, this.props.date)
     }
 
     getEvents({events, duration}) {
