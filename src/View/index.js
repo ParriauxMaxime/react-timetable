@@ -7,9 +7,8 @@
  ***************************************/
 
 import React from 'react'
-import moment from 'moment'
 import {DURATION} from '../index'
-import {getToday, getWeek, getMonth} from '../util'
+import {getMonth, getToday, getWeek} from '../util'
 
 
 export default class extends React.Component {
@@ -27,6 +26,12 @@ export default class extends React.Component {
 
     getMonthly(events) {
         return getMonth(events, this.props.date)
+    }
+
+    getMonday(d) {
+        const day = d.getDay(),
+            diff = d.getDate() - day + (day === 0 ? -6 : 1)
+        return new Date(new Date(d).setDate(diff))
     }
 
     getEvents({events, duration}) {

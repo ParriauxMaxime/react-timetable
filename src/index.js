@@ -26,7 +26,7 @@ export default class extends Component {
         const today = new Date()
         const yesterday = new Date().setDate(today.getDate() - 1)
         const tomorrow = new Date().setDate(today.getDate() + 1)
-        const view = props.view || VIEW.list
+        const view = props.view || VIEW.table
         const duration = props.duration || DURATION.day
         const date = props.date || today
         this.state = {

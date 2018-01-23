@@ -101,13 +101,8 @@ export class List extends Parent {
         if (this.props.renderWeek)
             return this.props.renderWeek({date, events})
 
-        function getMonday(d) {
-            const day = d.getDay(),
-                diff = d.getDate() - day + (day === 0 ? -6 : 1)
-            return new Date(new Date(d).setDate(diff))
-        }
 
-        const monday = getMonday(date)
+        const monday = this.getMonday(date)
         let days = []
         for (let i = 0; i < 7; i++) {
             const Day = this.renderDay.bind(this)
