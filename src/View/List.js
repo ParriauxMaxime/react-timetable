@@ -130,24 +130,9 @@ export class List extends Parent {
         if (this.props.renderMonth)
             return this.props.renderMonth({date, events})
 
-        function getFirstDayOfTheMonth(d) {
-            const date = d.getDate(),
-                diff = (d.getDate() - date) + 1
-            return new Date(new Date(d).setDate(diff))
-        }
 
-        function getLastDayOfTheMonth(d) {
-            //DUUUH
-            const date = d.getDate(),
-                diff = (d.getDate() - date) + 1,
-                next_month = d.getMonth() + 1,
-                first = new Date(new Date(d).setDate(diff)),
-                firstNextMonth = new Date(first.setMonth(next_month))
-            return new Date(firstNextMonth.setDate(firstNextMonth.getDate() - 1))
-        }
-
-        const first = getFirstDayOfTheMonth(date)
-        const last = getLastDayOfTheMonth(date)
+        const first = this.getFirstDayOfTheMonth(date)
+        const last = this.getLastDayOfTheMonth(date)
         let days = []
         for (let i = 0; i <= last.getDate() - first.getDate(); i++) {
             const Day = this.renderDay.bind(this)

@@ -23,8 +23,9 @@ export const EVENT_TYPE = {
 export default class extends Component {
     constructor(props) {
         super(props)
-        const today = new Date()
-        const yesterday = new Date().setDate(today.getDate() - 1)
+        //const today = new Date()
+        const yesterday = new Date(new Date().setDate(new Date().getDate() - 1))
+        const today = yesterday;
         const tomorrow = new Date().setDate(today.getDate() + 1)
         const view = props.view || VIEW.table
         const duration = props.duration || DURATION.day

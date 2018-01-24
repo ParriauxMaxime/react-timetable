@@ -34,6 +34,28 @@ export default class extends React.Component {
         return new Date(new Date(d).setDate(diff))
     }
 
+    getSunday(d) {
+        const day = d.getDay(),
+            diff = d.getDate() + (7 - day)
+        return new Date(new Date(d).setDate(diff))
+    }
+
+    getFirstDayOfTheMonth(d) {
+        const date = d.getDate(),
+            diff = (d.getDate() - date) + 1
+        return new Date(new Date(d).setDate(diff))
+    }
+
+    getLastDayOfTheMonth(d) {
+        //DUUUH
+        const date = d.getDate(),
+            diff = (d.getDate() - date) + 1,
+            next_month = d.getMonth() + 1,
+            first = new Date(new Date(d).setDate(diff)),
+            firstNextMonth = new Date(first.setMonth(next_month))
+        return new Date(firstNextMonth.setDate(firstNextMonth.getDate() - 1))
+    }
+
     getEvents({events, duration}) {
         switch (duration) {
             case DURATION.month:
