@@ -36,6 +36,16 @@ export class Table extends Parent {
             renderDayEvent: () => <span>loading</span>,
             columns       : []
         }
+        this.resizeListener = window.addEventListener('resize', () => {
+            this.columns = []
+            this.forceUpdate(() => {
+                this.setState({renderDayEvent: this.renderDayEvent.bind(this), columns: this.columns.slice(this.columns.length / 2)})
+            })
+        })
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.resizeListener);
     }
 
     renderHours(e, i) {
@@ -50,10 +60,6 @@ export class Table extends Parent {
             {e.minute === 0 ? moment(Date.now()).hours(e.hour).minutes(0).format('HH:mm') : ''}
             &nbsp;
         </div>
-    }
-
-    componentWillUpdate() {
-        this.columns = []
     }
 
     componentDidMount() {

@@ -4,7 +4,23 @@
 [![npm package][npm-badge]][npm]
 [![Coveralls][coveralls-badge]][coveralls]
 
-Describe react-timetable here.
+React component that implement timetable logic.
+
+## Installation
+react-timetable is available as an npm package.
+```
+npm install --save react-timetable
+```
+
+## API
+
+## Examples
+
+## Questions
+
+## License
+This project is licensed under the terms of the MIT license.
+
 
 [build-badge]: https://img.shields.io/travis/user/repo/master.png?style=flat-square
 [build]: https://travis-ci.org/user/repo
@@ -14,3 +30,4 @@ Describe react-timetable here.
 
 [coveralls-badge]: https://img.shields.io/coveralls/user/repo/master.png?style=flat-square
 [coveralls]: https://coveralls.io/github/user/repo
+

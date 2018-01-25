@@ -1,7 +1,7 @@
 {
   "name": "react-timetable",
-  "version": "1.0.0",
-  "description": "react-timetable React component",
+  "version": "0.0.1",
+  "description": "Highly customizable timetable React component",
   "main": "lib/index.js",
   "module": "es/index.js",
   "files": [
@@ -29,10 +29,10 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0"
   },
-  "author": "",
-  "homepage": "",
+  "author": "ParriauxMaxime",
+  "homepage": "https://github.com/ParriauxMaxime/react-timetable",
   "license": "MIT",
-  "repository": "",
+  "repository": "https://github.com/ParriauxMaxime/react-timetable",
   "keywords": [
     "react-component"
   ]
