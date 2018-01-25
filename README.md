@@ -6,6 +6,9 @@
 
 React component that implement timetable logic.
 
+# Notice
+**PROJECT IN PROGRESS**
+
 ## Installation
 react-timetable is available as an npm package.
 ```
