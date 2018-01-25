@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {render} from 'react-dom'
-
+import moment from 'moment'
 import Example from '../../src'
 
 export class TimeEvent {
@@ -68,37 +68,40 @@ const eventsCreator = () => {
     let events = [];
 
     for (let i = twoMonthAgo; i < twoMonthAfter; i = new Date(i.setDate(i.getDate() + 1))) {
-        const createStartDate = (date, hours = Math.random()* 12 + 8, minutes = 0) => {
+        const createStartDate = (date, hours = Math.random()* 11 + 8, minutes = 0) => {
             return new Date(new Date(new Date(date).setHours(hours)).setMinutes(minutes))
         }
         const createEndDate = (date, duration = 60) => {
             return new Date(new Date(date).setMinutes(date.getMinutes() + duration))
         }
-        const mathClassCreator = () => {
+        const mathClassCreator = (hour) => {
             const start = createStartDate(i)
+            const s = hour ? new Date(moment(start).hour(hour)._d) : start;
             return new ClassEvent({
-                start,
-                end: createEndDate(start, 90),
+                start: s,
+                end: createEndDate(s, 90),
                 creator,
                 place: 'Math classroom',
                 module: 'Math 101'
             })
         }
-        const physicsClassCreator = () => {
+        const physicsClassCreator = (hour) => {
             const start = createStartDate(i)
+            const s = hour ? new Date(moment(start).hour(hour)._d) : start;
             return new ClassEvent({
-                start,
-                end: createEndDate(start, 60),
+                start: s,
+                end: createEndDate(s, 60),
                 creator,
                 place: 'Physics classroom',
                 module: 'Physics 101'
             })
         }
-        const csClassCreator = () => {
+        const csClassCreator = (hour) => {
             const start = createStartDate(i)
+            const s = hour ? new Date(moment(start).hour(hour)._d) : start;
             return new ClassEvent({
-                start,
-                end: createEndDate(start, 120),
+                start: s,
+                end: createEndDate(s, 120),
                 creator,
                 place: 'cs classroom',
                 module: 'CS 101'
@@ -113,7 +116,9 @@ const eventsCreator = () => {
             }
             case 2: { // Tuesday
                 events.push(csClassCreator())
+                events.push(mathClassCreator())
                 events.push(csClassCreator())
+                events.push(mathClassCreator())
                 events.push(csClassCreator())
                 break
             }

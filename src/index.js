@@ -23,13 +23,13 @@ export const EVENT_TYPE = {
 export default class extends Component {
     constructor(props) {
         super(props)
-        //const today = new Date()
+        const today = new Date()
         const yesterday = new Date(new Date().setDate(new Date().getDate() - 1))
-        const today = yesterday;
+        const YYesterday = new Date(new Date().setDate(new Date().getDate() - 2))
         const tomorrow = new Date().setDate(today.getDate() + 1)
         const view = props.view || VIEW.table
         const duration = props.duration || DURATION.day
-        const date = props.date || today
+        const date = props.date || YYesterday
         this.state = {
             view,
             duration,

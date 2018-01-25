@@ -16,8 +16,8 @@ export default class extends React.Component {
         super(props)
     }
 
-    getDaily(events) {
-        return getToday(events, this.props.date)
+    getDaily(events, date = this.props.date) {
+        return getToday(events, date)
     }
 
     getWeekly(events) {
@@ -44,6 +44,20 @@ export default class extends React.Component {
         const date = d.getDate(),
             diff = (d.getDate() - date) + 1
         return new Date(new Date(d).setDate(diff))
+    }
+
+    isColliding(a, b) {
+        return (a.start < b.end && a.end > b.start)
+    }
+
+    getCollisions(event, events) {
+        return events
+            .filter((e) => {
+            return this.isColliding(e, event)
+        }).filter((e, i, tab) => {
+            //console.log(tab)
+                return true
+        })
     }
 
     getLastDayOfTheMonth(d) {

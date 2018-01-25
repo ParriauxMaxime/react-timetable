@@ -9,6 +9,7 @@
 import Parent from './index'
 import React from 'react'
 import moment from 'moment'
+import {DURATION} from '../index'
 
 const style = {
     border    : (color = 'black') => ({border: `${color} 1px solid`}),
@@ -33,7 +34,7 @@ export class Table extends Parent {
         this.timeDivision = props.timeDivision || 4
         this.state = {
             renderDayEvent: () => <span>loading</span>,
-            columns: []
+            columns       : []
         }
     }
 
@@ -55,6 +56,10 @@ export class Table extends Parent {
         this.columns = []
     }
 
+    componentDidMount() {
+        this.setState({renderDayEvent: this.renderDayEvent.bind(this), columns: this.columns})
+    }
+
     renderColumn(e, i) {
         const lastOne = (60 / this.timeDivision * (this.timeDivision - 1))
         return (
@@ -74,10 +79,6 @@ export class Table extends Parent {
         )
     }
 
-    componentDidMount() {
-        this.setState({renderDayEvent: this.renderDayEven.bind(this), columns: this.columns})
-    }
-
     _hoursArray() {
         let hours = []
         for (let i = 0; i <= ((this.timeEnd - this.timeStart) * this.timeDivision) + this.timeDivision - 1; i++) {
@@ -89,21 +90,90 @@ export class Table extends Parent {
         return hours
     }
 
-    renderDayEven() {
+    _dayGraph(sortedEvent: Array): Array {
+        const tab = sortedEvent.map((e, i, t) => {
+            const collisions = this.getCollisions(e, t)
+            return {
+                event: e,
+                collisions,
+            }
+        })
+        return tab
+    }
+
+    renderDayEvent({date, events, index}) {
         if (!this.state.columns.length)
-            return null;
-        const [f, l] = [this.state.columns[0], this.state.columns[this.state.columns.length - 1]]
-        console.log(f.getBoundingClientRect())
-        console.log(l.getBoundingClientRect())
+            return null
+        const forWeek = (this.timeEnd - this.timeStart + 1) * this.timeDivision;
+        const [f, l] = [this.state.columns[forWeek * index], this.state.columns[forWeek * (index + 1) -1]]
+        const sortedEvent = events.sort((a, b) => a.start === b.start ? 0 : a.start < b.start ? -1 : 1)
+            .filter(e => moment(e.start).hour() >= this.timeStart && moment(e.end).hour() >= this.timeStart &&
+                moment(e.end).hour() <= this.timeEnd && moment(e.start).hour() <= this.timeEnd)
+        let CURRENT_NODE = null;
         return (
             <div style={{
-                width: f.getBoundingClientRect().width,
-                height: l.getBoundingClientRect().bottom - f.getBoundingClientRect().top,
-                left: f.getBoundingClientRect().left,
-                top: f.getBoundingClientRect().top,
-                position: 'absolute',
+                width          : f.getBoundingClientRect().width,
+                height         : l.getBoundingClientRect().bottom - f.getBoundingClientRect().top,
+                left           : f.getBoundingClientRect().left,
+                top            : f.getBoundingClientRect().top,
+                position       : 'absolute',
                 backgroundColor: 'rgba(255, 0, 0, 0.1)',
             }}>
+                {
+                    this._dayGraph(this.getDaily(sortedEvent, date)).map((e, i, tab) => {
+                        const {start, end} = e.event
+                        const [hs, ms] = [moment(start).hour(), moment(start).minute()]
+                        const [he, me] = [moment(end).hour(), moment(end).minute()]
+                        const [s, d] = [
+                            this.state.columns[forWeek * index + ((hs - this.timeStart) * this.timeDivision + (ms / (60 / this.timeDivision)))],
+                            this.state.columns[forWeek * index + ((he - this.timeStart) * this.timeDivision + (me / (60 / this.timeDivision)))],
+                        ]
+                        let w;
+                        let left;
+                        if (CURRENT_NODE === null && e.collisions.length !== 1) {
+                            CURRENT_NODE = e;
+                            w = CURRENT_NODE.collisions.length !== 0 ? Math.floor(100 / (CURRENT_NODE.collisions.length)) : 100
+                            left = 0;
+                        }
+                        else if (CURRENT_NODE === null) {
+                            w = 100;
+                            left = 0;
+                        }
+                        else {
+                            const getPastEvent = (node) => {
+                                return node.collisions.indexOf(node.event)
+                            }
+                            w = CURRENT_NODE.collisions.length !== 0 ? Math.floor(100 / (CURRENT_NODE.collisions.length)) : 100
+                            const tmp = CURRENT_NODE.collisions.slice(getPastEvent(CURRENT_NODE)).indexOf(e.event)
+                            left = tmp === - 1 ?
+                                100 :
+                                tmp *  w;
+                            if (CURRENT_NODE.collisions.indexOf(e.event) === CURRENT_NODE.collisions.length - 1) {
+                                CURRENT_NODE = null;
+                            }
+                        }
+                        const lastRow = this.state.columns[this.state.columns.length]
+                        const st = {
+                            height         : (d ? d.getBoundingClientRect().top : lastRow.getBoundingClientRect().top) -
+                            (s ? s.getBoundingClientRect().top : this.state.columns[0].getBoundingClientRect().top),
+                            width          : `${w}%`,
+                            left           : `${left}%`,
+                            top            : s.getBoundingClientRect().top - this.state.columns[0].getBoundingClientRect().top,
+                            position       : 'absolute',
+                            backgroundColor: 'rgba(50,50,200,0.9)',
+                            color          : 'white',
+                            border         : '1px solid rgba(0, 0, 0, 0.3)',
+                            boxSizing      : 'border-box'
+                        }
+                        return (
+                            <div key={`event-${i}`} style={st}>
+                                <div style={{}}>
+                                    {e.event.module}
+                                </div>
+                            </div>
+                        )
+                    })
+                }
             </div>
         )
     }
@@ -129,7 +199,7 @@ export class Table extends Parent {
                             )
                         })
                     }
-                    {this.state.renderDayEvent()}
+                    {this.state.renderDayEvent({date, events, index})}
                 </div>
             </div>
         )
@@ -175,30 +245,37 @@ export class Table extends Parent {
         const mlast = moment(last)
         let days = []
         let dayNames = []
-        let j = 0;
+        let j = 0
         for (let i = mfirst.clone(); (i.date() <= mlast.date()) || (i.month() !== mlast.month());) {
-            j++;
+            j++
             if (j <= 7) {
                 dayNames.push(i.format('dddd'))
             }
-            days.push(i);
+            days.push(i)
             i = i.clone().add(1, 'd')
         }
         const nbWeeks = mlast.week() - mfirst.week() + 1
 
         const Day = (date: moment, i: number) => {
             return (
-                <div key={`day-${date.date()}-${i}`} style={{borderBottom: '', borderRight: i === 6 ? 'none' : 'solid rgba(0,0,0,0.5) 1px', width:
-                 '100%', height: '100%', minWidth: '100px', minHeight: '100px'}}>
+                <div key={`day-${date.date()}-${i}`} style={{
+                    borderBottom: '',
+                    borderRight : i === 6 ? 'none' : 'solid rgba(0,0,0,0.5) 1px',
+                    width       :
+                        '100%',
+                    height      : '100%',
+                    minWidth    : '100px',
+                    minHeight   : '100px'
+                }}>
                     <div style={{
                         ...style.width(),
-                        textAlign: 'end',
-                        alignItems: 'center',
-                        padding: '0 2px',
-                        boxSizing: 'border-box',
+                        textAlign      : 'end',
+                        alignItems     : 'center',
+                        padding        : '0 2px',
+                        boxSizing      : 'border-box',
                         backgroundColor: 'rgba(140, 100, 100, 0.5)',
-                        borderTop: '1px solid black',
-                        borderBottom: '1px solid black',
+                        borderTop      : '1px solid black',
+                        borderBottom   : '1px solid black',
                     }}>
                         {date.date()}
                     </div>
@@ -220,15 +297,16 @@ export class Table extends Parent {
         }
         const d = [...days]
         let weeks = []
-        while(d.length) weeks.push(d.splice(0, 7))
+        while (d.length) weeks.push(d.splice(0, 7))
         return (
             <div style={{...style.height(), ...style.flexC, border: '1px solid black'}}>
                 <div style={{...style.flexR, ...style.height()}}>
-                {
-                    dayNames.map((e, i) => {
-                        return <div key={`name-${e}`} style={{...style.flexCenter, ...style.width()}}>{e}</div>
-                    })
-                }
+                    {
+                        dayNames.map((e, i) => {
+                            return <div key={`name-${e}`}
+                                        style={{...style.flexCenter, ...style.width()}}>{e}</div>
+                        })
+                    }
                 </div>
                 {
                     weeks.map(Week)
