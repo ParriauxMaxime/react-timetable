@@ -2,34 +2,17 @@ import React, {Component} from 'react'
 import {Pagination} from './Pagination'
 import {List} from './View/List'
 import {Table} from './View/Table'
+import moment from 'moment'
+import {DURATION, VIEW} from './api'
 
-export const VIEW = {
-    list : 'list',
-    table: 'table'
-}
 
-export const DURATION = {
-    day  : 'day',
-    week : 'week',
-    month: 'month'
-}
-
-export const EVENT_TYPE = {
-    class         : 'class',
-    meeting       : 'meeting',
-    administration: 'administration',
-}
-
-export default class extends Component {
+export class TimeTable extends Component {
     constructor(props) {
         super(props)
         const today = new Date()
-        const yesterday = new Date(new Date().setDate(new Date().getDate() - 1))
-        const YYesterday = new Date(new Date().setDate(new Date().getDate() - 2))
-        const tomorrow = new Date().setDate(today.getDate() + 1)
-        const view = props.view || VIEW.table
+        const view = props.view || VIEW.list
         const duration = props.duration || DURATION.day
-        const date = props.date || YYesterday
+        const date = props.date || today
         this.state = {
             view,
             duration,
@@ -47,7 +30,7 @@ export default class extends Component {
             const newDate = (duration, date) => {
                 switch (duration) {
                     case DURATION.day: {
-                        return new Date(new Date(date).setDate(date.getDate() + increment))
+                        return new Date(moment(date).add(1, 'd'));
                     }
                     case DURATION.week: {
                         return new Date(new Date(date).setDate(date.getDate() + (increment * 7)))
@@ -102,3 +85,5 @@ export default class extends Component {
         )
     }
 }
+
+export default TimeTable

@@ -14,36 +14,34 @@ moment.updateLocale('en', {
     },
 })
 
+export const sortDate = (a, b) => {
+    a = new Date(a.start)
+    b = new Date(b.start)
+    return a < b ? -1 : a > b ? 1 : 0
+}
 
 export const getToday = (events, date) => {
-    const mo = moment(date)
-    const [d, m, y] = [mo.date(), mo.month(), mo.year()]
-    const T = (e) => {
-        const [s, f] = [moment(e.start), moment(e.end)]
-        return (s.date() === d && s.month() === m && s.year() === y) ||
-            (f.date() === d && f.month() === m && f.year() === y)
-    }
-    return events.filter(T)
+    return events.filter(e => e.isToday())
 };
 
 export const getWeek = (events, date) => {
-    const mo = moment(date)
-    const [d, m, y, w] = [mo.date(), mo.month(), mo.year(), mo.week()]
+    const d = moment(date)
+    const format = "WW YYYY"
     const W = (e) => {
         const [s, f] = [moment(e.start), moment(e.end)]
-        return (s.week() === w && s.year() === y) ||
-            (f.week() === w && f.year() === y)
+        return  (s.format(format) ===  d.format(format) ||
+            f.format(format) === d.format(format))
     }
     return events.filter(W)
 };
 
 export const getMonth = (events, date) => {
-    const mo = moment(date)
-    const [d, m, y, w] = [mo.date(), mo.month(), mo.year(), mo.week()]
+    const d = moment(date)
+    const format = 'MM YYYY'
     const M = (e) => {
         const [s, f] = [moment(e.start), moment(e.end)]
-        return (s.month() === m && s.year() === y) ||
-            (f.week() === m && f.year() === y)
+        return (s.format(format) ===  d.format(format) ||
+            f.format(format) === d.format(format))
     }
     return events.filter(M)
 };

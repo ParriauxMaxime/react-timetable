@@ -9,88 +9,39 @@
 import React from 'react'
 import Parent from './index'
 import moment from 'moment'
-import {getToday} from '../util'
+import {getToday, sortDate} from '../util'
+import {DefaultDay, DefaultListEvent, defaultStyleList} from '../styles'
+import {TimeEvent, VIEW} from '../api'
 
-const flexP = {
-    display: 'flex',
-    padding: '0 10px'
-}
-
-const minWidth = 32
-
-const defaultStyle = {
-    container      : {
-        ...flexP,
-        flexDirection: 'row',
-        margin       : '4px 0',
-        padding      : '8px',
-    },
-    dateContainer  : {
-        ...flexP,
-        minWidth: 200,
-        width   : '20%',
-    },
-    eventsContainer: {
-        ...flexP,
-        flexDirection: ' column',
-        minWidth     : 400,
-        width        : '60%',
-    },
-    eventContainer : (i) => ({
-        display        : 'flex',
-        backgroundColor: !(i % 2) ? 'rgba(10, 10, 10, 0.2)' : 'transparent',
-        justifyContent : 'flex-start'
-    }),
-    hourLimit      : {
-        minWidth,
-        marginRight: 4,
-    },
-    creator        : {
-        minWidth
-    },
-    title          : {
-        minWidth,
-        fontWeight: 'bold',
-    },
-    weekContainer  : {},
-    monthContainer : {}
-}
+const defaultStyle = defaultStyleList;
 
 export class List extends Parent {
+    static defaultProps = {
+        view: VIEW.list
+    }
+
     constructor(props) {
         super(props)
     }
 
-    renderDay({date, events}) {
+    renderDay(props) {
         if (this.props.renderDay)
-            return this.props.renderDay({date, events})
+            return this.props.renderDay(props)
+        const {duration, view} = this.props
         return (
             <div style={defaultStyle.container}>
                 <div style={defaultStyle.dateContainer}>
-                    {moment(date).format('dddd DD MMMM YYYY')}
+                    { moment(props.date).format('dddd DD MMMM YYYY') }
                 </div>
                 <div style={defaultStyle.eventsContainer}>
                     {
-                        events.slice().sort(function (a, b) {
-                            a = new Date(a.start)
-                            b = new Date(b.start)
-                            return a < b ? -1 : a > b ? 1 : 0
-                        }).map((e, i) => {
-                            const key = e._id || i
-                            return (
-                                <div key={key} style={defaultStyle.eventContainer(i)}>
-                                    <div role='hour-limit' style={defaultStyle.hourLimit}>
-                                        {`${moment(e.start).format('HH:mm')} - ${moment(e.end).format('HH:mm')}`}
-                                    </div>
-                                    <div role='creator' style={defaultStyle.creator}>
-                                        {e.creator}
-                                    </div>
-                                    <div role='module' style={defaultStyle.title}>
-                                        {e.module}
-                                    </div>
-                                </div>
-                            )
-                        })
+                        [...props.events].sort(sortDate)
+                            .map((p, i) => (
+                                <TimeEvent {...p.props}
+                                           duration={duration}
+                                           view={view}
+                                           index={i} />
+                            ))
                     }
                 </div>
             </div>
@@ -100,24 +51,16 @@ export class List extends Parent {
     renderWeek({date, events}) {
         if (this.props.renderWeek)
             return this.props.renderWeek({date, events})
-
-
         const monday = this.getMonday(date)
         let days = []
         for (let i = 0; i < 7; i++) {
             const Day = this.renderDay.bind(this)
-            const d = new Date(new Date(monday).setDate(monday.getDate() + i))
-            const [date, month, year] = [d.getDate(), d.getMonth(), d.getFullYear()]
-            const isToday = (e) => {
-                const [s, f] = [moment(e.start), moment(e.end)]
-                return (s.date() === date && s.month() === month && s.year() === year) ||
-                    (f.date() === date && f.month() === month && f.year() === year)
-            }
+            const d = moment(monday).add(i, 'd')
             days.push(
-                <Day {...{date: d, events: events.filter(isToday)}}
+                <Day {...{date: new Date(d), events: getToday(events, d)}}
                      key={`${moment(d).format('DD MM YYYY')}-${i}`}/>
             )
-            days.push(<hr key={`sorryBadDesignPattern-${i}`}/>)
+            days.push(<hr key={`hrWeek-${i}`}/>)
         }
         return (
             <div style={defaultStyle.weekContainer}>
@@ -129,8 +72,6 @@ export class List extends Parent {
     renderMonth({date, events}) {
         if (this.props.renderMonth)
             return this.props.renderMonth({date, events})
-
-
         const first = this.getFirstDayOfTheMonth(date)
         const last = this.getLastDayOfTheMonth(date)
         let days = []

@@ -9,23 +9,19 @@
 import Parent from './index'
 import React from 'react'
 import moment from 'moment'
-import {DURATION} from '../index'
+import {VIEW} from '../api'
+import {defaultStyleTable} from '../styles'
 
-const style = {
-    border    : (color = 'black') => ({border: `${color} 1px solid`}),
-    flex      : {display: 'flex'},
-    flexR     : {display: 'flex', flexDirection: 'row'},
-    flexC     : {display: 'flex', flexDirection: 'column'},
-    flexCenter: {display: 'flex', justifyContent: 'center'},
-    padding   : (v = '8px') => ({padding: v}),
-    height    : (v = '100%') => ({height: v}),
-    width     : (v = '100%') => ({width: v}),
-}
+const style = defaultStyleTable
 
 const HOUR_COLUMNS_WIDTH = 60
 const HCW = HOUR_COLUMNS_WIDTH
 
 export class Table extends Parent {
+    static defaultProps = {
+        view: VIEW.table
+    }
+
     constructor(props) {
         super(props)
         this.columns = []
@@ -39,13 +35,16 @@ export class Table extends Parent {
         this.resizeListener = window.addEventListener('resize', () => {
             this.columns = []
             this.forceUpdate(() => {
-                this.setState({renderDayEvent: this.renderDayEvent.bind(this), columns: this.columns.slice(this.columns.length / 2)})
+                this.setState({
+                    renderDayEvent: this.renderDayEvent.bind(this),
+                    columns       : this.columns.slice(this.columns.length / 2)
+                })
             })
         })
     }
 
     componentWillUnmount() {
-        window.removeEventListener('resize', this.resizeListener);
+        window.removeEventListener('resize', this.resizeListener)
     }
 
     renderHours(e, i) {
@@ -110,12 +109,12 @@ export class Table extends Parent {
     renderDayEvent({date, events, index}) {
         if (!this.state.columns.length)
             return null
-        const forWeek = (this.timeEnd - this.timeStart + 1) * this.timeDivision;
-        const [f, l] = [this.state.columns[forWeek * index], this.state.columns[forWeek * (index + 1) -1]]
+        const forWeek = (this.timeEnd - this.timeStart + 1) * this.timeDivision
+        const [f, l] = [this.state.columns[forWeek * index], this.state.columns[forWeek * (index + 1) - 1]]
         const sortedEvent = events.sort((a, b) => a.start === b.start ? 0 : a.start < b.start ? -1 : 1)
             .filter(e => moment(e.start).hour() >= this.timeStart && moment(e.end).hour() >= this.timeStart &&
                 moment(e.end).hour() <= this.timeEnd && moment(e.start).hour() <= this.timeEnd)
-        let CURRENT_NODE = null;
+        let CURRENT_NODE = null
         return (
             <div style={{
                 width          : f.getBoundingClientRect().width,
@@ -134,28 +133,31 @@ export class Table extends Parent {
                             this.state.columns[forWeek * index + ((hs - this.timeStart) * this.timeDivision + (ms / (60 / this.timeDivision)))],
                             this.state.columns[forWeek * index + ((he - this.timeStart) * this.timeDivision + (me / (60 / this.timeDivision)))],
                         ]
-                        let w;
-                        let left;
+                        let w
+                        let left
                         if (CURRENT_NODE === null && e.collisions.length !== 1) {
-                            CURRENT_NODE = e;
+                            CURRENT_NODE = e
                             w = CURRENT_NODE.collisions.length !== 0 ? Math.floor(100 / (CURRENT_NODE.collisions.length)) : 100
-                            left = 0;
+                            left = 0
                         }
                         else if (CURRENT_NODE === null) {
-                            w = 100;
-                            left = 0;
+                            w = 100
+                            left = 0
                         }
                         else {
                             const getPastEvent = (node) => {
                                 return node.collisions.indexOf(node.event)
                             }
                             w = CURRENT_NODE.collisions.length !== 0 ? Math.floor(100 / (CURRENT_NODE.collisions.length)) : 100
-                            const tmp = CURRENT_NODE.collisions.slice(getPastEvent(CURRENT_NODE)).indexOf(e.event)
-                            left = tmp === - 1 ?
-                                100 :
-                                tmp *  w;
+                            let tmp = CURRENT_NODE.collisions.slice(getPastEvent(CURRENT_NODE)).indexOf(e.event)
+                            if (tmp === -1) {
+                                CURRENT_NODE = e
+                                tmp = CURRENT_NODE.collisions.slice(getPastEvent(CURRENT_NODE)).indexOf(e.event)
+                                w = CURRENT_NODE.collisions.length !== 0 ? Math.floor(100 / (CURRENT_NODE.collisions.length)) : 100
+                            }
+                            left = tmp * w
                             if (CURRENT_NODE.collisions.indexOf(e.event) === CURRENT_NODE.collisions.length - 1) {
-                                CURRENT_NODE = null;
+                                CURRENT_NODE = null
                             }
                         }
                         const lastRow = this.state.columns[this.state.columns.length]

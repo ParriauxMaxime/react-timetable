@@ -7,9 +7,12 @@
  ***************************************/
 
 import React from 'react'
-import {DURATION} from '../index'
+import {DURATION} from '../api'
 import {getMonth, getToday, getWeek} from '../util'
 
+/*export interface View extends React.Component {
+
+}*/
 
 export default class extends React.Component {
     constructor(props) {
@@ -20,12 +23,12 @@ export default class extends React.Component {
         return getToday(events, date)
     }
 
-    getWeekly(events) {
-        return getWeek(events, this.props.date)
+    getWeekly(events, date = this.props.date) {
+        return getWeek(events, date)
     }
 
-    getMonthly(events) {
-        return getMonth(events, this.props.date)
+    getMonthly(events, date = this.props.date) {
+        return getMonth(events, date)
     }
 
     getMonday(d) {
@@ -51,17 +54,12 @@ export default class extends React.Component {
     }
 
     getCollisions(event, events) {
-        return events
-            .filter((e) => {
+        return events.filter((e) => {
             return this.isColliding(e, event)
-        }).filter((e, i, tab) => {
-            //console.log(tab)
-                return true
         })
     }
 
     getLastDayOfTheMonth(d) {
-        //DUUUH
         const date = d.getDate(),
             diff = (d.getDate() - date) + 1,
             next_month = d.getMonth() + 1,
