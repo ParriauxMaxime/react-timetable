@@ -6,8 +6,8 @@
  ** 2017 - All rights reserved
  ***************************************/
 
-import Parent from './index'
 import React from 'react'
+import {AbstractView} from './index'
 import moment from 'moment'
 import {VIEW} from '../api'
 import {defaultStyleTable} from '../styles'
@@ -17,7 +17,7 @@ const style = defaultStyleTable
 const HOUR_COLUMNS_WIDTH = 60
 const HCW = HOUR_COLUMNS_WIDTH
 
-export class Table extends Parent {
+export class Table extends AbstractView {
     static defaultProps = {
         view: VIEW.table
     }

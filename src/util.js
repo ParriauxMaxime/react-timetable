@@ -21,7 +21,7 @@ export const sortDate = (a, b) => {
 }
 
 export const getToday = (events, date) => {
-    return events.filter(e => e.isToday())
+    return events.filter(e => e.isToday(date))
 };
 
 export const getWeek = (events, date) => {

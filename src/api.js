@@ -29,47 +29,45 @@ export const EVENT_TYPE = {
     administration: 'administration',
 }
 
-export interface ITimeEvent {
+export type ITimeEvent = {
     start: Date,
     end: Date,
     creator?: string,
     title?: string,
-    pepepe : number,
     _id?: string,
 }
 
-export class TimeEvent extends React.Component<ITimeEvent>{
-    static instanceCount = 0;
+export class TimeEvent<T> extends React.Component<ITimeEvent> {
+    static instanceCount = 0
     static defaultProps = {
         creator: '',
-        title: '',
-        _id: undefined,
+        title  : '',
+        _id    : undefined,
     }
 
-    constructor(props) {
-        super(props);
+    constructor(props: ITimeEvent) {
+        super(props)
         TimeEvent.instanceCount++
     }
 
     getKey() {
-        const {_id} = this.props;
-        const c = TimeEvent.instanceCount;
-        return _id ? `e_${c}__${_id}` : `e_${c}`;
+        const {_id} = this.props
+        const c = TimeEvent.instanceCount
+        return _id ? `e_${c}__${_id}` : `e_${c}`
     }
 
     isToday(today: Date) {
-        const d = moment(today);
-        const format = 'DD MM YYYY';
-        const {start, end} = this.props;
+        const d = moment(today)
+        const format = 'DD MM YYYY'
+        const {start, end} = this.props
         return moment(start).format(format) === d.format(format) ||
             moment(end).format(format) === d.format(format)
     }
 
     renderList() {
-        const c = TimeEvent.instanceCount;
+        const c = TimeEvent.instanceCount
         const format = 'HH:mm'
-        const {start, end, creator, title} = this.props;
-        console.log(this.props)
+        const {start, end, creator, title} = this.props
         const [s, e] = [moment(start).format(format), moment(end).format(format)]
         return (
             <div key={this.getKey()}
@@ -91,7 +89,7 @@ export class TimeEvent extends React.Component<ITimeEvent>{
     }
 
     renderTable() {
-        return null;
+        return null
     }
 
     render() {
@@ -99,28 +97,31 @@ export class TimeEvent extends React.Component<ITimeEvent>{
     }
 }
 
-interface IClassEvent extends ITimeEvent {
+type IClassEvent =
+    ITimeEvent & {
     module: string,
     place?: any,
 }
 
-export class ClassEvent extends TimeEvent implements IClassEvent {
+export class ClassEvent extends TimeEvent<IClassEvent> {
+
 }
 
-interface IMeetingEvent extends ITimeEvent {
-    participants?: Array,
+
+type IMeetingEvent = ITimeEvent & {
+    participants?: Array<any>,
     place?: any,
 }
 
-export class MeetingEvent extends TimeEvent implements IMeetingEvent {
+export class MeetingEvent extends TimeEvent<IMeetingEvent> {
 }
 
-interface IAdministrationEvent extends ITimeEvent {
-    participants?: Array,
+type IAdministrationEvent = ITimeEvent & {
+    participants?: Array<any>,
     place?: any,
 }
 
-export class AdministrationEvent extends TimeEvent implements IAdministrationEvent {
+export class AdministrationEvent extends TimeEvent<IAdministrationEvent> {
 }
 
 export const eventsCreator = () => {

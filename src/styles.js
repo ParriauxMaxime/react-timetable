@@ -66,32 +66,3 @@ export const defaultStyleTable = {
     height    : (v = '100%') => ({height: v}),
     width     : (v = '100%') => ({width: v}),
 }
-
-let defaultStyle = defaultStyleList;
-
-
-
-interface IListTimeEvent {
-    [index: number]: ITimeEvent
-}
-
-interface DayProps {
-    date: Date,
-    events: IListTimeEvent,
-    defaultStyle: ?Object,
-    dateFormat: ?string,
-}
-
-
-
-export class DefaultDay extends React.Component {
-    constructor(props: DayProps) {
-        super(props);
-    }
-
-    render() {
-        console.log(this.props.events)
-
-    }
-
-}

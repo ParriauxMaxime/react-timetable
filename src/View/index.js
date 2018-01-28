@@ -5,61 +5,73 @@
  ** List.js
  ** 2017 - All rights reserved
  ***************************************/
-
-import React from 'react'
+// @flow
+import * as React from 'react'
 import {DURATION} from '../api'
 import {getMonth, getToday, getWeek} from '../util'
+import moment from 'moment'
+import type {ITimeEvent} from '../api'
 
-/*export interface View extends React.Component {
 
-}*/
+type IListTimeEvent = Array<ITimeEvent>
 
-export default class extends React.Component {
-    constructor(props) {
-        super(props)
+export type ViewProps = {
+    date: Date,
+    duration: string,
+    events: IListTimeEvent,
+  /*defaultStyle?: Object,
+    dateFormat?: string,*/
+}
+
+type Props = ViewProps & {
+    events: IListTimeEvent,
+    renderDay(props: ViewProps): React.Node,
+    renderWeek(props: ViewProps): React.Node,
+    renderMonth(props: ViewProps): React.Node,
+}
+
+
+export class AbstractView extends React.Component<Props> {
+    static defaultProps = {
+        date: new Date(),
+        events: [],
+        duration: DURATION.day,
+        renderDay: (props: ViewProps) => null,
+        renderWeek: (props: ViewProps) => null,
+        renderMonth: (props: ViewProps) => null,
     }
 
-    getDaily(events, date = this.props.date) {
-        return getToday(events, date)
+    getDaily(events: IListTimeEvent) : IListTimeEvent {
+        return getToday(events, this.props.date)
     }
 
-    getWeekly(events, date = this.props.date) {
-        return getWeek(events, date)
+    getWeekly(events: IListTimeEvent) : IListTimeEvent {
+        return getWeek(events, this.props.date)
     }
 
-    getMonthly(events, date = this.props.date) {
-        return getMonth(events, date)
+    getMonthly(events: IListTimeEvent) : IListTimeEvent {
+        return getMonth(events, this.props.date)
     }
 
-    getMonday(d) {
+    static getMonday(d: Date) : Date {
         const day = d.getDay(),
             diff = d.getDate() - day + (day === 0 ? -6 : 1)
         return new Date(new Date(d).setDate(diff))
     }
 
-    getSunday(d) {
+    getSunday(d: Date) : Date {
         const day = d.getDay(),
             diff = d.getDate() + (7 - day)
         return new Date(new Date(d).setDate(diff))
     }
 
-    getFirstDayOfTheMonth(d) {
+    static getFirstDayOfTheMonth(d: Date) : Date {
         const date = d.getDate(),
             diff = (d.getDate() - date) + 1
         return new Date(new Date(d).setDate(diff))
     }
 
-    isColliding(a, b) {
-        return (a.start < b.end && a.end > b.start)
-    }
-
-    getCollisions(event, events) {
-        return events.filter((e) => {
-            return this.isColliding(e, event)
-        })
-    }
-
-    getLastDayOfTheMonth(d) {
+    static getLastDayOfTheMonth(d: Date) : Date {
         const date = d.getDate(),
             diff = (d.getDate() - date) + 1,
             next_month = d.getMonth() + 1,
@@ -68,7 +80,17 @@ export default class extends React.Component {
         return new Date(firstNextMonth.setDate(firstNextMonth.getDate() - 1))
     }
 
-    getEvents({events, duration}) {
+    isColliding(a: ITimeEvent, b: ITimeEvent) : boolean {
+        return (a.start < b.end && a.end > b.start)
+    }
+
+    getCollisions(event: ITimeEvent, events: IListTimeEvent) : IListTimeEvent {
+        return events.filter((e) => {
+            return this.isColliding(e, event)
+        })
+    }
+
+    getEvents({events, duration, date}: Props) : ?IListTimeEvent {
         switch (duration) {
             case DURATION.month:
                 return this.getMonthly(events)
@@ -82,10 +104,11 @@ export default class extends React.Component {
     }
 
     render() {
+        console.log(moment(this.props.date).format())
         const events = this.getEvents(this.props)
-        const Day = this.renderDay.bind(this)
-        const Week = this.renderWeek.bind(this)
-        const Month = this.renderMonth.bind(this)
+        const Day = this.props.renderDay(this.props)
+        const Week = this.props.renderWeek(this.props)
+        const Month = this.props.renderMonth(this.props)
         switch (this.props.duration) {
             case DURATION.day: {
                 return <Day {...this.props} events={events}/>

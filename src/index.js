@@ -1,18 +1,37 @@
-import React, {Component} from 'react'
+// @flow
+
+import * as React from 'react'
 import {Pagination} from './Pagination'
 import {List} from './View/List'
 import {Table} from './View/Table'
 import moment from 'moment'
 import {DURATION, VIEW} from './api'
+import type {ITimeEvent} from './api'
 
 
-export class TimeTable extends Component {
-    constructor(props) {
+type State = {
+    date: Date,
+    view: string,
+    duration: string,
+};
+
+type Props = State & {
+    events: Array<ITimeEvent>,
+    onNavigationEvent(Event): null,
+    onChange(Event): null,
+}
+
+export class TimeTable extends React.Component<Props, State> {
+    static defaultProps = {
+        date    : new Date(),
+        view    : VIEW.list,
+        duration: DURATION.day,
+        events: [],
+    }
+
+    constructor(props: Props) {
         super(props)
-        const today = new Date()
-        const view = props.view || VIEW.list
-        const duration = props.duration || DURATION.day
-        const date = props.date || today
+        const {view, duration, date} = this.props
         this.state = {
             view,
             duration,
@@ -20,32 +39,33 @@ export class TimeTable extends Component {
         }
     }
 
-    onNavigationEvent(Event) {
+    onNavigationEvent(Event: any) {
         const {duration, date} = this.state
-        if (this.props.onNavigationEvent) {
+      /*  if (this.props.onNavigationEvent) {
             this.props.onNavigationEvent({event: Event, duration, date})
         }
-        else {
-            const increment = Event.value === 'next' ? 1 : - 1
+        else {*/
+            const increment = Event.value === 'next' ? 1 : -1
             const newDate = (duration, date) => {
                 switch (duration) {
                     case DURATION.day: {
-                        return new Date(moment(date).add(1, 'd'));
+                        return new Date(moment(date).add(increment, 'd'))
                     }
                     case DURATION.week: {
-                        return new Date(new Date(date).setDate(date.getDate() + (increment * 7)))
+                        return new Date(moment(date).add(increment * 7, 'd'))
                     }
                     case DURATION.month: {
-                        return new Date(new Date(date).setMonth(date.getMonth() + increment))
+                        return new Date(moment(date).add(increment, 'm'))
                     }
-                    default: return date;
+                    default:
+                        return date
                 }
             }
             this.setState({date: newDate(duration, date)})
-        }
+        //}
     }
 
-    onChange(Event) {
+    onChange(Event: any) {
         this.setState({[Event.type]: Event.value}, () => {
             console.log('Register new state', {[Event.type]: Event.value})
         })
