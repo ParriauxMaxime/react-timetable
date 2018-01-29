@@ -6,7 +6,7 @@
  ** 2017 - All rights reserved
  ***************************************/
 // @flow
-import React from 'react'
+import * as React from 'react'
 import moment from 'moment'
 import {defaultStyleList} from './styles'
 
@@ -29,6 +29,10 @@ export const EVENT_TYPE = {
     administration: 'administration',
 }
 
+interface Renderable {
+    renderList: () => React.Node
+}
+
 export type ITimeEvent = {
     start: Date,
     end: Date,
@@ -37,37 +41,78 @@ export type ITimeEvent = {
     _id?: string,
 }
 
-export class TimeEvent<T> extends React.Component<ITimeEvent> {
+export class TimeEvent<T: ITimeEvent> implements Renderable {
     static instanceCount = 0
-    static defaultProps = {
-        creator: '',
-        title  : '',
-        _id    : undefined,
+    creator: string = ''
+    title: string = ''
+    start: Date
+    end: Date
+    _id: string = ''
+    index: number = TimeEvent.instanceCount
+    renderList = <T>() : React.Node => {
+        const c = this.index
+        const format = 'HH:mm'
+        const [s, e] = [moment(this.start).format(format),
+            moment(this.end).format(format)]
+        return (
+            <div key={this.getKey()}
+                 style={Style.list.eventContainer(c)}>
+                <div role='hour-limit'
+                     style={Style.list.hourLimit}>
+                    {`${s} - ${e}`}
+                </div>
+                <div role='creator'
+                     style={Style.list.creator}>
+                    {this.creator}
+                </div>
+                <div role='module'
+                     style={Style.list.title}>
+                    {this.title}
+                </div>
+            </div>
+        )
     }
 
-    constructor(props: ITimeEvent) {
-        super(props)
+    constructor(props: T) {
+        const propsArray : Array<Object> = Object.keys(props)
+            .map(e => ({[e]: props[e]}))
+        Object.assign(this, ...propsArray)
         TimeEvent.instanceCount++
+
     }
 
-    getKey() {
-        const {_id} = this.props
-        const c = TimeEvent.instanceCount
-        return _id ? `e_${c}__${_id}` : `e_${c}`
+    getKey(): string {
+        const {_id} = this
+        const c = this.index
+        return _id ? `event_${c}__${_id}` : `event_${c}`
     }
 
-    isToday(today: Date) {
+    isToday(today: Date): boolean {
         const d = moment(today)
         const format = 'DD MM YYYY'
-        const {start, end} = this.props
+        const {start, end} = this
         return moment(start).format(format) === d.format(format) ||
             moment(end).format(format) === d.format(format)
     }
 
-    renderList() {
-        const c = TimeEvent.instanceCount
+    static renderTable() {
+        return null
+    }
+}
+
+type IClassEvent =
+    ITimeEvent & {
+    module: string,
+    place?: any,
+}
+
+export class ClassEvent extends TimeEvent<IClassEvent> {
+    module: string = ''
+    renderList = () : React.Node => {
+        const c = this.index
+        console.log(c, this)
         const format = 'HH:mm'
-        const {start, end, creator, title} = this.props
+        const {start, end, creator, module} = this
         const [s, e] = [moment(start).format(format), moment(end).format(format)]
         return (
             <div key={this.getKey()}
@@ -81,30 +126,12 @@ export class TimeEvent<T> extends React.Component<ITimeEvent> {
                     {creator}
                 </div>
                 <div role='module'
-                     style={Style.list.title}>
-                    {title}
+                     style={Style.list.module}>
+                    {module}
                 </div>
             </div>
         )
     }
-
-    renderTable() {
-        return null
-    }
-
-    render() {
-        return this.renderList()
-    }
-}
-
-type IClassEvent =
-    ITimeEvent & {
-    module: string,
-    place?: any,
-}
-
-export class ClassEvent extends TimeEvent<IClassEvent> {
-
 }
 
 

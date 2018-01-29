@@ -12,7 +12,7 @@ class Demo extends Component{
                 <h1>
                     {'react-timetable Demo'}
                 </h1>
-                <TimeTable events={events} />
+                <TimeTable events={events} date={new Date(new Date().setDate(new Date().getDate() + 1))}/>
             </div>
         )
     }
