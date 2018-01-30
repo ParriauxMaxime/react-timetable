@@ -7,77 +7,84 @@
  ***************************************/
 // @flow
 import * as React from 'react'
+import type {ITimeEvent, TimeEvent} from '../api'
 import {DURATION} from '../api'
 import {getMonth, getToday, getWeek} from '../util'
-import moment from 'moment'
-import type {ITimeEvent, TimeEvent} from '../api'
 
 
-type IListTimeEvent = Array<TimeEvent<ITimeEvent>>
+export type IListTimeEvent = Array<TimeEvent<ITimeEvent>>
 
 export type ViewProps = {
     date: Date,
     duration: string,
     events: IListTimeEvent,
-  /*defaultStyle?: Object,
-    dateFormat?: string,*/
 }
 
 export type NullableComponent = React.Node
 
-type Props = ViewProps & {
-    events: IListTimeEvent,
-    renderDay:(props: ViewProps) => NullableComponent,
-    renderWeek:(props: ViewProps) => NullableComponent,
+type Props = ViewProps
+
+export interface IView {
+    renderDay: (props: ViewProps) => NullableComponent,
+    renderWeek: (props: ViewProps) => NullableComponent,
     renderMonth: (props: ViewProps) => NullableComponent,
 }
 
 
-export class AbstractView extends React.Component<Props> {
+export class AbstractView extends React.Component<Props> implements IView {
     static defaultProps = {
-        date: new Date(),
-        events: [],
+        date    : new Date(),
+        events  : [],
         duration: DURATION.day,
     }
 
-    static getDaily(props: ViewProps) : IListTimeEvent {
+    __IsNotImplemented(name) {
+        console.log();
+        throw new Error([
+        `render${name} is not implemented on ${this.constructor.displayName}.
+        You're actually trying to call a non implemented function on an Abstract component.
+        You should extends the existing AbstractView component and implement render${name}.`
+        ])
+    }
+
+    renderDay() {
+        this.__IsNotImplemented('Day')
+        return null
+    }
+
+    renderWeek() {
+        this.__IsNotImplemented('Week')
+        return null
+    }
+
+    renderMonth() {
+        this.__IsNotImplemented('Month')
+        return null
+    }
+
+    static getDaily(props: ViewProps): IListTimeEvent {
         return getToday(props.events, props.date)
     }
 
-    static getWeekly(props: ViewProps) : IListTimeEvent {
+    static getWeekly(props: ViewProps): IListTimeEvent {
         return getWeek(props.events, props.date)
     }
 
-    static getMonthly(props: ViewProps) : IListTimeEvent {
+    static getMonthly(props: ViewProps): IListTimeEvent {
         return getMonth(props.events, props.date)
     }
 
-    static getFirstDayOfTheMonth(d: Date) : Date {
-        const date = d.getDate(),
-            diff = (d.getDate() - date) + 1
-        return new Date(new Date(d).setDate(diff))
-    }
-
-    static getLastDayOfTheMonth(d: Date) : Date {
-        const date = d.getDate(),
-            diff = (d.getDate() - date) + 1,
-            next_month = d.getMonth() + 1,
-            first = new Date(new Date(d).setDate(diff)),
-            firstNextMonth = new Date(first.setMonth(next_month))
-        return new Date(firstNextMonth.setDate(firstNextMonth.getDate() - 1))
-    }
-
-    isColliding(a: TimeEvent<ITimeEvent>, b: TimeEvent<ITimeEvent>) : boolean {
+    isColliding(a: TimeEvent<ITimeEvent>, b: TimeEvent<ITimeEvent>): boolean {
         return (a.start < b.end && a.end > b.start)
     }
 
-    getCollisions(event: TimeEvent<ITimeEvent>, events: IListTimeEvent) : IListTimeEvent {
+    getCollisions(event: TimeEvent<ITimeEvent>, events: IListTimeEvent): IListTimeEvent {
         return events.filter((e) => {
             return this.isColliding(e, event)
         })
     }
 
-    static getEvents(props: ViewProps) : IListTimeEvent {
+    static getEvents(props: ViewProps): IListTimeEvent {
         switch (props.duration) {
             case DURATION.month:
                 return AbstractView.getMonthly(props)
@@ -90,22 +97,22 @@ export class AbstractView extends React.Component<Props> {
         }
     }
 
-    static staticRender(props: Props) : React.Node {
-        const events = AbstractView.getEvents(props);
+    staticRender(): React.Node {
+        const events = AbstractView.getEvents(this.props)
         const p: ViewProps = ({
-            date    : (props.date : Date) ,
-            duration: (props.duration: string),
+            date    : (this.props.date: Date),
+            duration: (this.props.duration: string),
             events  : (events: IListTimeEvent)
-        }: ViewProps);
-        switch (props.duration) {
+        }: ViewProps)
+        switch (this.props.duration) {
             case DURATION.day: {
-                return props.renderDay(p)
+                return this.renderDay(p)
             }
             case DURATION.week: {
-                return props.renderWeek(p)
+                return this.props.renderWeek(p)
             }
             case DURATION.month: {
-                return props.renderMonth(p)
+                return this.props.renderMonth(p)
             }
             default:
                 return null
@@ -113,6 +120,6 @@ export class AbstractView extends React.Component<Props> {
     }
 
     render() {
-        return AbstractView.staticRender(this.props)
+        return this.staticRender()
     }
 }

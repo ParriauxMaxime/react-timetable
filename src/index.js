@@ -6,8 +6,17 @@ import {List} from './View/List'
 import {Table} from './View/Table'
 import moment from 'moment'
 import {DURATION, VIEW} from './api'
-import type {ITimeEvent} from './api'
+import type {IListTimeEvent, IView, ViewProps} from './View'
+import {AbstractView} from './View'
 
+type ViewMap = Array<{name: string, component: React.Node}>
+
+type Props = ViewProps & {
+    view: string,
+    viewMap: ViewMap,
+    onNavigationEvent(Event): null,
+    onChange(Event): null,
+}
 
 type State = {
     date: Date,
@@ -15,18 +24,12 @@ type State = {
     duration: string,
 };
 
-type Props = State & {
-    events: Array<ITimeEvent>,
-    onNavigationEvent(Event): null,
-    onChange(Event): null,
-}
-
 export class TimeTable extends React.Component<Props, State> {
     static defaultProps = {
         date    : new Date(),
-        view    : VIEW.list,
         duration: DURATION.day,
-        events: [],
+        events  : [],
+        view    : VIEW.list,
     }
 
     constructor(props: Props) {
@@ -41,28 +44,23 @@ export class TimeTable extends React.Component<Props, State> {
 
     onNavigationEvent(Event: any) {
         const {duration, date} = this.state
-      /*  if (this.props.onNavigationEvent) {
-            this.props.onNavigationEvent({event: Event, duration, date})
-        }
-        else {*/
-            const increment = Event.value === 'next' ? 1 : -1
-            const newDate = (duration, date) => {
-                switch (duration) {
-                    case DURATION.day: {
-                        return new Date(moment(date).add(increment, 'd'))
-                    }
-                    case DURATION.week: {
-                        return new Date(moment(date).add(increment * 7, 'd'))
-                    }
-                    case DURATION.month: {
-                        return new Date(moment(date).add(increment, 'm'))
-                    }
-                    default:
-                        return date
+        const increment = Event.value === 'next' ? 1 : -1
+        const newDate = (duration, date) => {
+            switch (duration) {
+                case DURATION.day: {
+                    return new Date(moment(date).add(increment, 'd'))
                 }
+                case DURATION.week: {
+                    return new Date(moment(date).add(increment * 7, 'd'))
+                }
+                case DURATION.month: {
+                    return new Date(moment(date).add(increment, 'm'))
+                }
+                default:
+                    return date
             }
-            this.setState({date: newDate(duration, date)})
-        //}
+        }
+        this.setState({date: newDate(duration, date)})
     }
 
     onChange(Event: any) {
@@ -71,25 +69,26 @@ export class TimeTable extends React.Component<Props, State> {
         })
     }
 
+    renderView(props: ViewProps) : AbstractView {
+        switch (this.state.view) {
+            case VIEW.list:
+                return <List {...props}/>
+            case VIEW.table:
+                return <Table {...props}/>
+            default:
+                return null
+        }
+    }
+
 
     render() {
         const events = this.props.events
-        const Body = (p) => {
-            const props = {
-                duration: this.state.duration,
-                events,
-                date    : this.state.date,
-                ...p
-            }
-            switch (this.state.view) {
-                case VIEW.list:
-                    return <List {...props}/>
-                case VIEW.table:
-                    return <Table {...props}/>
-                default:
-                    return null
-            }
-        }
+        const props = ({
+            duration: this.state.duration,
+            events  : (events: IListTimeEvent),
+            date    : this.state.date,
+        }: ViewProps);
+        const View : AbstractView = this.renderView()
         return (
             <div>
                 <Pagination {...{
@@ -100,7 +99,7 @@ export class TimeTable extends React.Component<Props, State> {
                     view             : this.state.view,
                 }}/>
                 <hr/>
-                <Body/>
+                <View/>
             </div>
         )
     }

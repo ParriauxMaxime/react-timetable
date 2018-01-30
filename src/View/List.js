@@ -12,41 +12,33 @@ import {AbstractView} from './index'
 import moment from 'moment'
 import {sortDate} from '../util'
 import {DefaultDay, DefaultListEvent, defaultStyleList} from '../styles'
-import {ClassEvent, TimeEvent, VIEW} from '../api'
 import type {ITimeEvent} from '../api'
+import {TimeEvent, VIEW} from '../api'
 
-const defaultStyle = defaultStyleList;
+const defaultStyle = defaultStyleList
 
 export class List extends AbstractView {
     static view = VIEW.list
-    static defaultProps = Object.assign(
-        {},
-        AbstractView.defaultProps,
-        {
-            renderDay: (props: ViewProps): NullableComponent => {
-                const {duration} = props
-                console.log(props.events)
-                const view = List.view
-                return (
-                    <div style={defaultStyle.container}>
-                        <div style={defaultStyle.dateContainer}>
-                            {moment(props.date).format('dddd DD MMMM YYYY')}
-                        </div>
-                        <div style={defaultStyle.eventsContainer}>
-                            {
-                                [...props.events].sort(sortDate)
 
-                                    .map((p: TimeEvent<ITimeEvent>) => {
-                                        console.log(p)
-                                        return p.renderList()
-                                    })
-                            }
-                        </div>
-                    </div>
-                )
-            }
-        }
-    );
+    renderDay2(props: ViewProps): NullableComponent {
+        return (
+            <div style={defaultStyle.container}>
+                <div style={defaultStyle.dateContainer}>
+                    {moment(props.date).format('dddd DD MMMM YYYY')}
+                </div>
+                <div style={defaultStyle.eventsContainer}>
+                    {
+                        [...props.events].sort(sortDate)
+
+                            .map((p: TimeEvent<ITimeEvent>) => {
+                                console.log(p)
+                                return p.renderList()
+                            })
+                    }
+                </div>
+            </div>
+        )
+    }
 }
 
 /*     renderWeek: (props: ViewProps): React.Node => {

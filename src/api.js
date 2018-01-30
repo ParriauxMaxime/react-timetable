@@ -9,6 +9,8 @@
 import * as React from 'react'
 import moment from 'moment'
 import {defaultStyleList} from './styles'
+import {List} from './View/List'
+import {Table} from './View/Table'
 
 const Style = {
     list: defaultStyleList
@@ -18,16 +20,21 @@ export const VIEW = {
     list : 'list',
     table: 'table'
 }
+
 export const DURATION = {
     day  : 'day',
     week : 'week',
     month: 'month'
 }
-export const EVENT_TYPE = {
-    class         : 'class',
-    meeting       : 'meeting',
-    administration: 'administration',
-}
+
+export const defaultViewMap = [{
+        name: VIEW.list,
+        component: List
+    }, {
+        name: VIEW.table,
+        component: Table
+    }
+]
 
 interface Renderable {
     renderList: () => React.Node
