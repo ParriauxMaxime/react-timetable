@@ -9,7 +9,9 @@ import {DURATION, VIEW} from './api'
 import type {IListTimeEvent, IView, ViewProps} from './View'
 import {AbstractView} from './View'
 
-type ViewMap = Array<{name: string, component: React.Node}>
+
+type Map = { name: string, View: AbstractView }
+type ViewMap = Array<Map>
 
 type Props = ViewProps & {
     view: string,
@@ -30,7 +32,16 @@ export class TimeTable extends React.Component<Props, State> {
         duration: DURATION.day,
         events  : [],
         view    : VIEW.list,
+        viewMap : [{
+            name: VIEW.list,
+            View: List
+        }, {
+            name: VIEW.table,
+            View: null//Table
+        }]
     }
+
+    state: State
 
     constructor(props: Props) {
         super(props)
@@ -69,28 +80,27 @@ export class TimeTable extends React.Component<Props, State> {
         })
     }
 
-    renderView(props: ViewProps) : AbstractView {
-        switch (this.state.view) {
-            case VIEW.list:
-                return <List {...props}/>
-            case VIEW.table:
-                return <Table {...props}/>
-            default:
-                return null
+    renderView(): ?AbstractView {
+        const {view, viewMap} = this.props
+        const views = (viewMap: ViewMap)
+            .filter((e: Map) => e.name === view)
+            .map((e: Map) => e.View);
+        if (views.length > 0) {
+            return views[0]
         }
+        return null
     }
 
 
     render() {
-        const events = this.props.events
         const props = ({
             duration: this.state.duration,
-            events  : (events: IListTimeEvent),
+            events  : (this.props.events: IListTimeEvent),
             date    : this.state.date,
-        }: ViewProps);
-        const View : AbstractView = this.renderView()
+        }: ViewProps)
+        const View : ?AbstractView = this.renderView();
         return (
-            <div>
+            <React.Fragment>
                 <Pagination {...{
                     onNavigationEvent: this.onNavigationEvent.bind(this),
                     onChange         : this.onChange.bind(this),
@@ -99,10 +109,17 @@ export class TimeTable extends React.Component<Props, State> {
                     view             : this.state.view,
                 }}/>
                 <hr/>
-                <View/>
-            </div>
+                {
+                   // () => (
+                    // $FlowFixMe: Flow should implement better comprenhension on abstract structure
+                        <View {...props}/>
+                   // )
+                }
+            </React.Fragment>
         )
     }
 }
-
-export default TimeTable
+/*
+<hr/>
+                <View {...props}/>
+ */

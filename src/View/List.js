@@ -7,7 +7,7 @@
  ***************************************/
 // @flow
 import * as React from 'react'
-import type {NullableComponent, ViewProps} from './index'
+import type {ViewProps} from './index'
 import {AbstractView} from './index'
 import moment from 'moment'
 import {sortDate} from '../util'
@@ -20,7 +20,7 @@ const defaultStyle = defaultStyleList
 export class List extends AbstractView {
     static view = VIEW.list
 
-    renderDay2(props: ViewProps): NullableComponent {
+    renderDay(props: ViewProps): React.Node {
         return (
             <div style={defaultStyle.container}>
                 <div style={defaultStyle.dateContainer}>
@@ -31,7 +31,6 @@ export class List extends AbstractView {
                         [...props.events].sort(sortDate)
 
                             .map((p: TimeEvent<ITimeEvent>) => {
-                                console.log(p)
                                 return p.renderList()
                             })
                     }
@@ -40,8 +39,8 @@ export class List extends AbstractView {
         )
     }
 }
-
-/*     renderWeek: (props: ViewProps): React.Node => {
+/*
+     renderWeek(props: ViewProps): React.Node => {
          const monday = Parent.getMonday(props.date)
          let days = []
          for (let i = 0; i < 7; i++) {
@@ -60,7 +59,8 @@ export class List extends AbstractView {
                  {days}
              </div>
          )
-     },
+     }
+
      renderMonth: (props: ViewProps): React.Node => {
          const {date, events} = props;
          const first = Parent.getFirstDayOfTheMonth(date)
@@ -82,4 +82,5 @@ export class List extends AbstractView {
          )
      }
  }
- */
+}
+*/

@@ -9,8 +9,6 @@
 import * as React from 'react'
 import moment from 'moment'
 import {defaultStyleList} from './styles'
-import {List} from './View/List'
-import {Table} from './View/Table'
 
 const Style = {
     list: defaultStyleList
@@ -27,14 +25,6 @@ export const DURATION = {
     month: 'month'
 }
 
-export const defaultViewMap = [{
-        name: VIEW.list,
-        component: List
-    }, {
-        name: VIEW.table,
-        component: Table
-    }
-]
 
 interface Renderable {
     renderList: () => React.Node
@@ -56,7 +46,7 @@ export class TimeEvent<T: ITimeEvent> implements Renderable {
     end: Date
     _id: string = ''
     index: number = TimeEvent.instanceCount
-    renderList = <T>() : React.Node => {
+    renderList = <T>(): React.Node => {
         const c = this.index
         const format = 'HH:mm'
         const [s, e] = [moment(this.start).format(format),
@@ -81,7 +71,7 @@ export class TimeEvent<T: ITimeEvent> implements Renderable {
     }
 
     constructor(props: T) {
-        const propsArray : Array<Object> = Object.keys(props)
+        const propsArray: Array<Object> = Object.keys(props)
             .map(e => ({[e]: props[e]}))
         Object.assign(this, ...propsArray)
         TimeEvent.instanceCount++
@@ -115,7 +105,7 @@ type IClassEvent =
 
 export class ClassEvent extends TimeEvent<IClassEvent> {
     module: string = ''
-    renderList = () : React.Node => {
+    renderList = (): React.Node => {
         const c = this.index
         console.log(c, this)
         const format = 'HH:mm'

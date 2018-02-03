@@ -11,7 +11,6 @@ import type {ITimeEvent, TimeEvent} from '../api'
 import {DURATION} from '../api'
 import {getMonth, getToday, getWeek} from '../util'
 
-
 export type IListTimeEvent = Array<TimeEvent<ITimeEvent>>
 
 export type ViewProps = {
@@ -20,14 +19,12 @@ export type ViewProps = {
     events: IListTimeEvent,
 }
 
-export type NullableComponent = React.Node
-
 type Props = ViewProps
 
 export interface IView {
-    renderDay: (props: ViewProps) => NullableComponent,
-    renderWeek: (props: ViewProps) => NullableComponent,
-    renderMonth: (props: ViewProps) => NullableComponent,
+    renderDay(props: ViewProps): React.Node,
+    renderWeek(props: ViewProps): React.Node,
+    renderMonth(props: ViewProps):React.Node,
 }
 
 
@@ -38,28 +35,28 @@ export class AbstractView extends React.Component<Props> implements IView {
         duration: DURATION.day,
     }
 
-    __IsNotImplemented(name) {
-        console.log();
+    __IsNotImplemented(name: string): React.Node {
+        const n : string = this.constructor.displayName || '';
         throw new Error([
-        `render${name} is not implemented on ${this.constructor.displayName}.
+        `render${name} is not implemented on ${n}.
         You're actually trying to call a non implemented function on an Abstract component.
         You should extends the existing AbstractView component and implement render${name}.`
-        ])
+        ]);
     }
 
-    renderDay() {
+    renderDay(props: ViewProps): React.Node {
         this.__IsNotImplemented('Day')
-        return null
+        return <div>Failed</div>
     }
 
-    renderWeek() {
+    renderWeek(props: ViewProps): React.Node {
         this.__IsNotImplemented('Week')
-        return null
+        return <div>Failed</div>
     }
 
-    renderMonth() {
+    renderMonth(props: ViewProps): React.Node {
         this.__IsNotImplemented('Month')
-        return null
+        return <div>Failed</div>
     }
 
     static getDaily(props: ViewProps): IListTimeEvent {
@@ -97,7 +94,7 @@ export class AbstractView extends React.Component<Props> implements IView {
         }
     }
 
-    staticRender(): React.Node {
+    render(): React.Node {
         const events = AbstractView.getEvents(this.props)
         const p: ViewProps = ({
             date    : (this.props.date: Date),
@@ -109,17 +106,13 @@ export class AbstractView extends React.Component<Props> implements IView {
                 return this.renderDay(p)
             }
             case DURATION.week: {
-                return this.props.renderWeek(p)
+                return this.renderWeek(p)
             }
             case DURATION.month: {
-                return this.props.renderMonth(p)
+                return this.renderMonth(p)
             }
             default:
                 return null
         }
-    }
-
-    render() {
-        return this.staticRender()
     }
 }
