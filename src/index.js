@@ -16,8 +16,8 @@ type ViewMap = Array<Map>
 type Props = ViewProps & {
     view: string,
     viewMap: ViewMap,
-    onNavigationEvent(Event): null,
-    onChange(Event): null,
+    onNavigationEvent(Event: any): null,
+    onChange(Event: any): null,
 }
 
 type State = {
@@ -37,7 +37,7 @@ export class TimeTable extends React.Component<Props, State> {
             View: List
         }, {
             name: VIEW.table,
-            View: null//Table
+            View: Table
         }]
     }
 
@@ -119,7 +119,3 @@ export class TimeTable extends React.Component<Props, State> {
         )
     }
 }
-/*
-<hr/>
-                <View {...props}/>
- */
