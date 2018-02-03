@@ -107,7 +107,6 @@ export class ClassEvent extends TimeEvent<IClassEvent> {
     module: string = ''
     renderList = (): React.Node => {
         const c = this.index
-        console.log(c, this)
         const format = 'HH:mm'
         const {start, end, creator, module} = this
         const [s, e] = [moment(start).format(format), moment(end).format(format)]

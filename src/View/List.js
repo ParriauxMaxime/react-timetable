@@ -38,49 +38,48 @@ export class List extends AbstractView {
             </div>
         )
     }
-}
-/*
-     renderWeek(props: ViewProps): React.Node => {
-         const monday = Parent.getMonday(props.date)
-         let days = []
-         for (let i = 0; i < 7; i++) {
-             const Day = props.renderDay.bind(this)
-             const d = moment(monday).add(i, 'd')
-             days.push(
-                 <Day {...{
-                     date: new Date(d),
-                     events: getToday(props.events, d)
-                 }} key={`${moment(d).format('DD MM YYYY')}-${i}`}/>
-             )
-             days.push(<hr key={`hrWeek-${i}`}/>)
-         }
-         return (
-             <div style={defaultStyle.weekContainer}>
-                 {days}
-             </div>
-         )
-     }
 
-     renderMonth: (props: ViewProps): React.Node => {
-         const {date, events} = props;
-         const first = Parent.getFirstDayOfTheMonth(date)
-         const last = Parent.getLastDayOfTheMonth(date)
-         let days = []
-         for (let i = 0; i <= last.getDate() - first.getDate(); i++) {
-             const Day = props.renderDay.bind(this)
-             const d = new Date(new Date(first).setDate(first.getDate() + i))
-             days.push(
-                 <Day {...{date: d, events: getToday(events, d)}}
-                      key={`${moment(d).format('MM YYYY')}-${i}`}/>
-             )
-             days.push(<hr key={`hr-${moment(d).format('MM YYYY')}-${i}`}/>)
-         }
-         return (
-             <div style={defaultStyle.weekContainer}>
-                 {days}
-             </div>
-         )
-     }
- }
+    renderWeek(props: ViewProps): React.Node {
+        const monday = AbstractView.getMonday(props.date)
+        let days = []
+        for (let i = 0; i < 7; i++) {
+            const Day = this.renderDay.bind(this)
+            const d = moment(monday).add(i, 'd')
+            days.push(
+                <Day {...{
+                    date  : new Date(d),
+                    events: AbstractView.getToday(props.events, d)
+                }} key={`${moment(d).format('DD MM YYYY')}-${i}`}/>
+            )
+            days.push(<hr key={`hrWeek-${i}`}/>)
+        }
+
+        return (
+
+            <div style={defaultStyle.weekContainer}>
+                {days}
+            </div>
+        )
+    }
+
+    renderMonth(props: ViewProps): React.Node {
+        const {date, events} = props
+        const first = AbstractView.getFirstDayOfTheMonth(date)
+        const last = AbstractView.getLastDayOfTheMonth(date)
+        let days = []
+        for (let i = 0; i <= last.getDate() - first.getDate(); i++) {
+            const Day = this.renderDay.bind(this)
+            const d = new Date(new Date(first).setDate(first.getDate() + i))
+            days.push(
+                <Day {...{date: d, events: AbstractView.getToday(events, d)}}
+                     key={`${moment(d).format('MM YYYY')}-${i}`}/>
+            )
+            days.push(<hr key={`hr-${moment(d).format('MM YYYY')}-${i}`}/>)
+        }
+        return (
+            <div style={defaultStyle.weekContainer}>
+                {days}
+            </div>
+        )
+    }
 }
-*/

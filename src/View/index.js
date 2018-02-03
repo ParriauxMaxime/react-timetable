@@ -8,6 +8,7 @@
 // @flow
 import * as React from 'react'
 import type {ITimeEvent, TimeEvent} from '../api'
+import moment from 'moment'
 import {DURATION} from '../api'
 import {getMonth, getToday, getWeek} from '../util'
 
@@ -59,6 +60,19 @@ export class AbstractView extends React.Component<Props> implements IView {
         return <div>Failed</div>
     }
 
+    static getMonday(d: Date) : Date {
+        const day = d.getDay(),
+            diff = d.getDate() - day + (day === 0 ? -6 : 1)
+        return new Date(new Date(d).setDate(diff))
+    }
+
+    static getToday(events: IListTimeEvent, d: Date) : IListTimeEvent {
+        const format = 'DD MM YYYY'
+        const v = moment(d).format(format)
+        return events.filter(e => moment(e.start).format(format) === v ||
+            moment(e.end).format(format) === v)
+    }
+
     static getDaily(props: ViewProps): IListTimeEvent {
         return getToday(props.events, props.date)
     }
@@ -79,6 +93,21 @@ export class AbstractView extends React.Component<Props> implements IView {
         return events.filter((e) => {
             return this.isColliding(e, event)
         })
+    }
+
+    static getFirstDayOfTheMonth(d: Date) : Date {
+        const date = d.getDate(),
+            diff = (d.getDate() - date) + 1
+        return new Date(new Date(d).setDate(diff))
+    }
+
+    static getLastDayOfTheMonth(d: Date) : Date {
+        const date = d.getDate(),
+            diff = (d.getDate() - date) + 1,
+            next_month = d.getMonth() + 1,
+            first = new Date(new Date(d).setDate(diff)),
+            firstNextMonth = new Date(first.setMonth(next_month))
+        return new Date(firstNextMonth.setDate(firstNextMonth.getDate() - 1))
     }
 
     static getEvents(props: ViewProps): IListTimeEvent {

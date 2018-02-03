@@ -29,7 +29,7 @@ type State = {
 export class TimeTable extends React.Component<Props, State> {
     static defaultProps = {
         date    : new Date(),
-        duration: DURATION.day,
+        duration: DURATION.month,
         events  : [],
         view    : VIEW.list,
         viewMap : [{
@@ -65,7 +65,7 @@ export class TimeTable extends React.Component<Props, State> {
                     return new Date(moment(date).add(increment * 7, 'd'))
                 }
                 case DURATION.month: {
-                    return new Date(moment(date).add(increment, 'm'))
+                    return new Date(moment(date).add(increment, 'M'))
                 }
                 default:
                     return date
