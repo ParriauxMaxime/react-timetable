@@ -18,6 +18,9 @@ export type ViewProps = {
     date: Date,
     duration: string,
     events: IListTimeEvent,
+    timeStart: number,
+    timeEnd: number,
+    timeDivision: number
 }
 
 type Props = ViewProps
@@ -85,13 +88,13 @@ export class AbstractView extends React.Component<Props> implements IView {
         return getMonth(props.events, props.date)
     }
 
-    isColliding(a: TimeEvent<ITimeEvent>, b: TimeEvent<ITimeEvent>): boolean {
+    static isColliding(a: TimeEvent<ITimeEvent>, b: TimeEvent<ITimeEvent>): boolean {
         return (a.start < b.end && a.end > b.start)
     }
 
-    getCollisions(event: TimeEvent<ITimeEvent>, events: IListTimeEvent): IListTimeEvent {
+    static getCollisions(event: TimeEvent<ITimeEvent>, events: IListTimeEvent): IListTimeEvent {
         return events.filter((e) => {
-            return this.isColliding(e, event)
+            return AbstractView.isColliding(e, event)
         })
     }
 

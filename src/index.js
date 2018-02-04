@@ -16,6 +16,9 @@ type ViewMap = Array<Map>
 type Props = ViewProps & {
     view: string,
     viewMap: ViewMap,
+    timeStart: number,
+    timeEnd: number,
+    timeDivision: number,
     onNavigationEvent(Event: any): null,
     onChange(Event: any): null,
 }
@@ -29,16 +32,19 @@ type State = {
 export class TimeTable extends React.Component<Props, State> {
     static defaultProps = {
         date    : new Date(),
-        duration: DURATION.month,
+        duration: DURATION.day,
         events  : [],
-        view    : VIEW.list,
+        view    : VIEW.table,
         viewMap : [{
             name: VIEW.list,
             View: List
         }, {
             name: VIEW.table,
             View: Table
-        }]
+        }],
+        timeStart: 8,
+        timeEnd: 20,
+        timeDivision: 4
     }
 
     state: State
@@ -93,10 +99,14 @@ export class TimeTable extends React.Component<Props, State> {
 
 
     render() {
+        const {timeStart, timeEnd, timeDivision} = this.props
         const props = ({
             duration: this.state.duration,
             events  : (this.props.events: IListTimeEvent),
             date    : this.state.date,
+            timeStart,
+            timeDivision,
+            timeEnd
         }: ViewProps)
         const View : ?AbstractView = this.renderView();
         return (
@@ -110,10 +120,8 @@ export class TimeTable extends React.Component<Props, State> {
                 }}/>
                 <hr/>
                 {
-                   // () => (
                     // $FlowFixMe: Flow should implement better comprenhension on abstract structure
                         <View {...props}/>
-                   // )
                 }
             </React.Fragment>
         )

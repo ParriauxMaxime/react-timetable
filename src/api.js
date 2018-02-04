@@ -44,8 +44,32 @@ export class TimeEvent<T: ITimeEvent> implements Renderable {
     title: string = ''
     start: Date
     end: Date
+    collisions: Array<TimeEvent<T>> = []
     _id: string = ''
     index: number = TimeEvent.instanceCount
+
+    constructor(props: T) {
+        const propsArray: Array<Object> = Object.keys(props)
+            .map(e => ({[e]: props[e]}))
+        Object.assign(this, ...propsArray)
+        TimeEvent.instanceCount++
+
+    }
+
+    getKey(): string {
+        const {_id} = this
+        const c = this.index
+        return _id ? `event_${c}__${_id}` : `event_${c}`
+    }
+
+    isToday(today: Date): boolean {
+        const d = moment(today)
+        const format = 'DD MM YYYY'
+        const {start, end} = this
+        return moment(start).format(format) === d.format(format) ||
+            moment(end).format(format) === d.format(format)
+    }
+
     renderList = <T>(): React.Node => {
         const c = this.index
         const format = 'HH:mm'
@@ -70,30 +94,23 @@ export class TimeEvent<T: ITimeEvent> implements Renderable {
         )
     }
 
-    constructor(props: T) {
-        const propsArray: Array<Object> = Object.keys(props)
-            .map(e => ({[e]: props[e]}))
-        Object.assign(this, ...propsArray)
-        TimeEvent.instanceCount++
+    renderTable = <T>(defaultStyle): React.Node => {
+        const style = {
+            position       : 'absolute',
+            backgroundColor: 'rgba(50,50,200,0.9)',
+            color          : 'white',
+            border         : '1px solid rgba(0, 0, 0, 0.3)',
+            boxSizing      : 'border-box',
+        }
 
-    }
-
-    getKey(): string {
-        const {_id} = this
-        const c = this.index
-        return _id ? `event_${c}__${_id}` : `event_${c}`
-    }
-
-    isToday(today: Date): boolean {
-        const d = moment(today)
-        const format = 'DD MM YYYY'
-        const {start, end} = this
-        return moment(start).format(format) === d.format(format) ||
-            moment(end).format(format) === d.format(format)
-    }
-
-    static renderTable() {
-        return null
+        return (
+            <div key={`event-${this.getKey()}`}
+                 style={{...defaultStyle, ...style}}>
+                <div>
+                    {this.title}
+                </div>
+            </div>
+        )
     }
 }
 
@@ -104,7 +121,11 @@ type IClassEvent =
 }
 
 export class ClassEvent extends TimeEvent<IClassEvent> {
-    module: string = ''
+    constructor(props: IClassEvent) {
+        super(props);
+        console.log(this);
+    }
+
     renderList = (): React.Node => {
         const c = this.index
         const format = 'HH:mm'
@@ -124,6 +145,26 @@ export class ClassEvent extends TimeEvent<IClassEvent> {
                 <div role='module'
                      style={Style.list.module}>
                     {module}
+                </div>
+            </div>
+        )
+    }
+
+    renderTable = <T>(defaultStyle): React.Node => {
+        console.log(this.module)
+        const style = {
+            position       : 'absolute',
+            backgroundColor: 'rgba(50,50,200,0.9)',
+            color          : 'white',
+            border         : '1px solid rgba(0, 0, 0, 0.3)',
+            boxSizing      : 'border-box',
+        }
+
+        return (
+            <div key={`event-${this.getKey()}`}
+                 style={{...defaultStyle, ...style}}>
+                <div>
+                    {this.module}
                 </div>
             </div>
         )
