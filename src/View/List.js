@@ -12,8 +12,9 @@ import {AbstractView} from './index'
 import moment from 'moment'
 import {sortDate} from '../util'
 import {DefaultDay, DefaultListEvent, defaultStyleList} from '../styles'
-import type {ITimeEvent} from '../api'
-import {TimeEvent, VIEW} from '../api'
+import type {ITimeEvent} from '../ITimeEvent'
+import {VIEW} from '../api'
+import {TimeEvent} from '../TimeEvent'
 
 const defaultStyle = defaultStyleList
 

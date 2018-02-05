@@ -7,11 +7,11 @@
  ***************************************/
 
 import React from 'react'
+import type {ViewProps} from './index'
 import {AbstractView} from './index'
 import moment from 'moment'
 import {VIEW} from '../api'
 import {defaultStyleTable} from '../styles'
-import type {ViewProps} from './index'
 import {sortDate} from '../util'
 
 const style = defaultStyleTable
@@ -27,6 +27,7 @@ export class Table extends AbstractView {
 
     constructor(props) {
         super(props)
+        window.scrollTo(0, 0)
         this.columns = []
         this.state = {
             renderDayEvent: () => <span>loading</span>,
@@ -47,8 +48,26 @@ export class Table extends AbstractView {
         window.removeEventListener('resize', this.resizeListener)
     }
 
+    componentDidMount() {
+        const cpy = this.columns.slice()
+        this.setState({renderDayEvent: this.renderDayEvent.bind(this), columns: cpy})
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (this.props.duration !== nextProps.duration || this.props.date !== nextProps.date) {
+            this.columns = []
+            this.setState({renderDayEvent: () => null}, () => {
+                const cpy = this.columns.slice().filter(e => e)
+                this.setState({
+                    renderDayEvent: this.renderDayEvent.bind(this),
+                    columns       : cpy
+                })
+            })
+        }
+    }
+
     renderHours(e, i) {
-        const {timeDivision} = this.props;
+        const {timeDivision} = this.props
         const lastOne = (60 / timeDivision * (timeDivision - 1))
         return <div key={`h-${i}`} style={{
             minWidth    : HCW,
@@ -62,15 +81,11 @@ export class Table extends AbstractView {
         </div>
     }
 
-    componentDidMount() {
-        this.setState({renderDayEvent: this.renderDayEvent.bind(this), columns: this.columns})
-    }
-
-    renderColumn(e, i) {
-        const {timeDivision} = this.props;
+    renderColumn(e, i, index = 0) {
+        const {timeDivision} = this.props
         const lastOne = (60 / timeDivision * (timeDivision - 1))
         return (
-            <div key={`c-${i}`} ref={(e) => {this.columns.push(e)}}
+            <div key={`c-${i}-${index}`} ref={(f) => {this.columns.push(f)}}
                  style={{
                      ...style.width('100%'),
                      minHeight   : 18,
@@ -115,12 +130,9 @@ export class Table extends AbstractView {
             return null
         const nbRowPerDay = (timeEnd - timeStart + 1) * timeDivision
         const first = overlay[nbRowPerDay * index]
-        console.log(overlay)
-
-        console.log(nbRowPerDay * index)
         const last = overlay[nbRowPerDay * (index + 1) - 1]
         const filterWantedEvents = e => moment(e.start).hour() >= timeStart && moment(e.end).hour() >= timeStart &&
-            moment(e.end).hour() <= timeEnd && moment(e.start).hour() <= timeEnd;
+            moment(e.end).hour() <= timeEnd && moment(e.start).hour() <= timeEnd
         const sortedEvent = events
             .sort(sortDate)
             .filter(filterWantedEvents)
@@ -142,12 +154,13 @@ export class Table extends AbstractView {
          *          Basically, an overlay grid, (as this.state.columns) is composed of
          *          timeDivision * (timeEnd - timeStart) elements.
          *          (e.g : with timeEnd = 20, timeStart = 8 and timeDivision = 4,
-         *           an overlay would be composed of ((20 - 8) * 4)) = 48 refs in the overlay Grid
+         *           an overlay would be composed of (((20 - 8)  + 1) * 4)) = 52 refs in the overlay
+         *           Grid
          *
          *          There should be one Overlay grid per day.
          * Collisions in timetable is and will be root of all evil
          *
-         */
+         **/
         let CURRENT_NODE = null
         return (
             <div style={{
@@ -200,11 +213,11 @@ export class Table extends AbstractView {
                             (s ? s.getBoundingClientRect().top : firstRow.getBoundingClientRect().top)
                         const defaultStyle = {
                             height,
-                            width          : `${width}%`,
-                            left           : `${left}%`,
-                            top            : s.getBoundingClientRect().top - firstRow.getBoundingClientRect().top,
+                            width: `${width}%`,
+                            left : `${left}%`,
+                            top  : s.getBoundingClientRect().top - firstRow.getBoundingClientRect().top,
                         }
-                        return e.event.renderTable(defaultStyle);
+                        return e.event.renderTable(defaultStyle)
                     })
                 }
             </div>
@@ -227,7 +240,7 @@ export class Table extends AbstractView {
                             return (
                                 <div key={`k-${i}`} style={{...style.flexR}}>
                                     {independent ? this.renderHours(e, i) : null}
-                                    {this.renderColumn(e, i)}
+                                    {this.renderColumn(e, i, index)}
                                 </div>
                             )
                         })
@@ -257,7 +270,11 @@ export class Table extends AbstractView {
         for (let i = 0; i < 7; i++) {
             const d = new Date(new Date(monday).setDate(monday.getDate() + i))
             const Day = this.renderDay.bind(this)
-            days.push(<Day key={`d-${i}`} date={d} events={events} index={i} independent={false}/>)
+            days.push(<Day key={`d-${i}`}
+                           date={d}
+                           events={events}
+                           index={i}
+                           independent={false}/>)
         }
         return (
             <div role="content"
@@ -269,11 +286,10 @@ export class Table extends AbstractView {
         )
     }
 
-/*    renderMonth({date, events}) {
-        const first = this.getMonday(this.getFirstDayOfTheMonth(date))
-        const mfirst = moment(first)
-        const last = this.getSunday(this.getLastDayOfTheMonth(date))
-        const mlast = moment(last)
+    renderMonth({date, events}) {
+        const minHeight = 100
+        const mfirst = moment(AbstractView.getMonday(AbstractView.getFirstDayOfTheMonth(date)))
+        const mlast = moment(AbstractView.getSunday(AbstractView.getLastDayOfTheMonth(date)))
         let days = []
         let dayNames = []
         let j = 0
@@ -285,32 +301,47 @@ export class Table extends AbstractView {
             days.push(i)
             i = i.clone().add(1, 'd')
         }
-        const nbWeeks = mlast.week() - mfirst.week() + 1
-
         const Day = (date: moment, i: number) => {
             return (
-                <div key={`day-${date.date()}-${i}`} style={{
-                    borderBottom: '',
-                    borderRight : i === 6 ? 'none' : 'solid rgba(0,0,0,0.5) 1px',
-                    width       :
-                        '100%',
-                    height      : '100%',
-                    minWidth    : '100px',
-                    minHeight   : '100px'
-                }}>
+                <React.Fragment key={`day-${date.date()}-${i}`}>
                     <div style={{
-                        ...style.width(),
-                        textAlign      : 'end',
-                        alignItems     : 'center',
-                        padding        : '0 2px',
-                        boxSizing      : 'border-box',
-                        backgroundColor: 'rgba(140, 100, 100, 0.5)',
-                        borderTop      : '1px solid black',
-                        borderBottom   : '1px solid black',
+                        borderBottom: '',
+                        borderRight : i === 6 ? 'none' : 'solid rgba(0,0,0,0.5) 1px',
+                        width       :
+                            '100%',
+                        height      : '100%',
+                        minWidth    : '100px',
+                        minHeight,
                     }}>
-                        {date.date()}
+                        <div style={{
+                            ...style.width(),
+                            textAlign      : 'end',
+                            alignItems     : 'center',
+                            padding        : '0 2px',
+                            boxSizing      : 'border-box',
+                            backgroundColor: 'rgba(140, 100, 100, 0.5)',
+                            borderTop      : '1px solid black',
+                            borderBottom   : '1px solid black',
+                        }}>
+                            {date.date()}
+                        </div>
+                        <div className={'content'}
+                             style={{
+                                 minHeight,
+                                 width        : '100%',
+                                 display      : 'flex',
+                                 flexDirection: 'column'
+                             }}
+                             ref={(ref) => {this.columns.push(ref)}}>
+                            {
+                                AbstractView.getToday(this.props.events, date).map((e, i) => {
+                                    return e.renderList()
+                                })
+                            }
+
+                        </div>
                     </div>
-                </div>
+                </React.Fragment>
             )
         }
         const Week = (dates: Array, i: number) => {
@@ -344,7 +375,7 @@ export class Table extends AbstractView {
                 }
             </div>
         )
-    }*/
+    }
 
     render() {
         return super.render()

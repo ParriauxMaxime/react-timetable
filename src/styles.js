@@ -1,7 +1,7 @@
 import moment from 'moment/moment'
 import React from 'react'
 import {sortDate} from './util'
-import {TimeEvent} from './api'
+import {TimeEvent} from './TimeEvent'
 
 /***************************************
  ** O-rizon development

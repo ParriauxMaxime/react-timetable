@@ -7,10 +7,11 @@
  ***************************************/
 // @flow
 import * as React from 'react'
-import type {ITimeEvent, TimeEvent} from '../api'
+import type {TimeEvent} from '../TimeEvent'
 import moment from 'moment'
 import {DURATION} from '../api'
 import {getMonth, getToday, getWeek} from '../util'
+import type {ITimeEvent} from '../ITimeEvent'
 
 export type IListTimeEvent = Array<TimeEvent<ITimeEvent>>
 
@@ -66,6 +67,12 @@ export class AbstractView extends React.Component<Props> implements IView {
     static getMonday(d: Date) : Date {
         const day = d.getDay(),
             diff = d.getDate() - day + (day === 0 ? -6 : 1)
+        return new Date(new Date(d).setDate(diff))
+    }
+
+    static getSunday(d: Date) : Date {
+        const day = d.getDay(),
+            diff = d.getDate() + (day === 0 ? 0 : 7 - day)
         return new Date(new Date(d).setDate(diff))
     }
 

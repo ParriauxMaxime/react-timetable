@@ -32,9 +32,9 @@ type State = {
 export class TimeTable extends React.Component<Props, State> {
     static defaultProps = {
         date    : new Date(),
-        duration: DURATION.day,
+        duration: DURATION.month,
         events  : [],
-        view    : VIEW.table,
+        view    : VIEW.list,
         viewMap : [{
             name: VIEW.list,
             View: List
@@ -87,10 +87,11 @@ export class TimeTable extends React.Component<Props, State> {
     }
 
     renderView(): ?AbstractView {
-        const {view, viewMap} = this.props
-        const views = (viewMap: ViewMap)
+        const {view} = this.state
+        const views = (this.props.viewMap: ViewMap)
             .filter((e: Map) => e.name === view)
             .map((e: Map) => e.View);
+        console.log(views);
         if (views.length > 0) {
             return views[0]
         }
@@ -117,6 +118,7 @@ export class TimeTable extends React.Component<Props, State> {
                     duration         : this.state.duration,
                     date             : this.state.date,
                     view             : this.state.view,
+                    viewMap          : this.props.viewMap
                 }}/>
                 <hr/>
                 {

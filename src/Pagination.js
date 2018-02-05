@@ -44,7 +44,7 @@ export class Pagination extends React.Component {
                 <select onChange={this.onChangeView.bind(this)}
                         value={this.props.view}>
                     {
-                        Object.values(VIEW).map(selectMapping)
+                        this.props.viewMap.map(e => e.name).map(selectMapping)
                     }
                 </select>
                 <select onChange={this.onChangeDuration.bind(this)}

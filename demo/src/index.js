@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import {render} from 'react-dom'
 import {TimeTable} from '../../src'
-import {eventsCreator} from '../../src/api'
+import {eventsCreator} from './eventsCreator'
 
 const events = eventsCreator()
 
