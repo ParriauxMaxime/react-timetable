@@ -1,8 +1,8 @@
-import {defaultStyleList} from './styles'
-import {TimeEvent} from './TimeEvent'
+import {defaultStyleList} from '../../../src/styles'
+import {TimeEvent} from '../../../src/Event/TimeEvent'
 import * as React from 'react'
 import moment from 'moment/moment'
-import type {ITimeEvent} from './ITimeEvent'
+import type {ITimeEvent} from '../../../src/Event/ITimeEvent'
 
 const Style = {
     list: defaultStyleList

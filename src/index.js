@@ -5,7 +5,7 @@ import {Pagination} from './Pagination'
 import {List} from './View/List'
 import {Table} from './View/Table'
 import moment from 'moment'
-import {DURATION, VIEW} from './api'
+import {DURATION, VIEW} from './util/api'
 import type {IListTimeEvent, IView, ViewProps} from './View'
 import {AbstractView} from './View'
 
@@ -32,9 +32,9 @@ type State = {
 export class TimeTable extends React.Component<Props, State> {
     static defaultProps = {
         date    : new Date(),
-        duration: DURATION.month,
+        duration: DURATION.week,
         events  : [],
-        view    : VIEW.list,
+        view    : VIEW.table,
         viewMap : [{
             name: VIEW.list,
             View: List

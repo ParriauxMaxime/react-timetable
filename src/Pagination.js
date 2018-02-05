@@ -7,8 +7,8 @@
  ***************************************/
 
 import React from 'react'
-import {DURATION} from './api'
-import {VIEW} from './api'
+import {DURATION} from './util/api'
+import {VIEW} from './util/api'
 const notImplemented = () => console.warn('onNavigationEvent props is not implemented')
 
 export class Pagination extends React.Component {

@@ -7,7 +7,7 @@
  ***************************************/
 // @flow
 import * as React from 'react'
-import {Style} from './TimeEvent'
+import {Style} from '../Event/TimeEvent'
 
 export const VIEW = {
     list : 'list',

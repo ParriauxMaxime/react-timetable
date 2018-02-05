@@ -10,9 +10,9 @@ import React from 'react'
 import type {ViewProps} from './index'
 import {AbstractView} from './index'
 import moment from 'moment'
-import {VIEW} from '../api'
+import {VIEW} from '../util/api'
 import {defaultStyleTable} from '../styles'
-import {sortDate} from '../util'
+import {sortDate} from '../util/util'
 
 const style = defaultStyleTable
 
@@ -167,7 +167,7 @@ export class Table extends AbstractView {
                 width          : first.getBoundingClientRect().width,
                 height         : last.getBoundingClientRect().bottom - first.getBoundingClientRect().top,
                 left           : first.getBoundingClientRect().left,
-                top            : first.getBoundingClientRect().top,
+                top            : window.top + first.getBoundingClientRect().top,
                 position       : 'absolute',
                 backgroundColor: 'rgba(255, 0, 0, 0.1)',
             }}>

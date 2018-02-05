@@ -1,4 +1,4 @@
-import {defaultStyleList} from './styles'
+import {defaultStyleList} from '../styles'
 import type {ITimeEvent, Renderable} from './ITimeEvent'
 import moment from 'moment'
 

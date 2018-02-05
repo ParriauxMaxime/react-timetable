@@ -1,5 +1,5 @@
 import moment from 'moment/moment'
-import {ClassEvent} from '../../src/ClassEvent'
+import {ClassEvent} from './Example/ClassEvent'
 
 export const eventsCreator = () => {
     const today = new Date()

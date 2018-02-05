@@ -7,11 +7,11 @@
  ***************************************/
 // @flow
 import * as React from 'react'
-import type {TimeEvent} from '../TimeEvent'
+import type {TimeEvent} from '../Event/TimeEvent'
 import moment from 'moment'
-import {DURATION} from '../api'
-import {getMonth, getToday, getWeek} from '../util'
-import type {ITimeEvent} from '../ITimeEvent'
+import {DURATION} from '../util/api'
+import {getMonth, getToday, getWeek} from '../util/util'
+import type {ITimeEvent} from '../Event/ITimeEvent'
 
 export type IListTimeEvent = Array<TimeEvent<ITimeEvent>>
 

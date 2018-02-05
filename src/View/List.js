@@ -10,11 +10,11 @@ import * as React from 'react'
 import type {ViewProps} from './index'
 import {AbstractView} from './index'
 import moment from 'moment'
-import {sortDate} from '../util'
+import {sortDate} from '../util/util'
 import {DefaultDay, DefaultListEvent, defaultStyleList} from '../styles'
-import type {ITimeEvent} from '../ITimeEvent'
-import {VIEW} from '../api'
-import {TimeEvent} from '../TimeEvent'
+import type {ITimeEvent} from '../Event/ITimeEvent'
+import {VIEW} from '../util/api'
+import {TimeEvent} from '../Event/TimeEvent'
 
 const defaultStyle = defaultStyleList
 

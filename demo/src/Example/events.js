@@ -1,5 +1,5 @@
-import type {ITimeEvent} from '../../../src/ITimeEvent'
-import {TimeEvent} from '../../../src/TimeEvent'
+import type {ITimeEvent} from '../../../src/Event/ITimeEvent'
+import {TimeEvent} from '../../../src/Event/TimeEvent'
 
 type IMeetingEvent = ITimeEvent & {
     participants?: Array<any>,
