@@ -1,8 +1,7 @@
-import expect from 'expect'
 import React from 'react'
 import {render, unmountComponentAtNode} from 'react-dom'
 
-import TimeTable from 'src/index'
+import {TimeTable} from 'src/index'
 
 describe('Component', () => {
   let node
@@ -16,7 +15,7 @@ describe('Component', () => {
   })
 
   it('displays a welcome message', () => {
-    render(<TimeTable/>, node, () => {
+    render(React.createElement(TimeTable, {date: new Date(), events: []}), node, () => {
     })
   })
 })

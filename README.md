@@ -8,18 +8,72 @@ React component that implement timetable logic.
 
 # Notice
 **PROJECT IN PROGRESS**
+Actual release is more or less stable.
+This is not production ready yet.
 
 ## Installation
-react-timetable is available as an npm package.
+##### NPM
 ```
-npm install --save react-timetable
+npm install --save @maximeparriaux/react-timetable
+```
+##### Yarn
+```
+yarn add @maximeparriaux/react-timetable
 ```
 
 ## API
+This component is based on templated inheritance.
+
+```javascript
+// @flow
+
+export {
+    TimeTable : React.Component<ViewProps>,
+    TimeEvent<T: ITimeEvent> implements Renderable,
+    AbstractView : React.Component<ViewProps> implements IView,
+    List : AbstractView,
+    Table : AbstractView,
+    Pagination : React.Component<>
+};
+
+
+// An event is just an object containing 'start' and 'end'
+
+type ITimeEvent = {
+    start: Date,
+    end: Date,
+    creator?: string,
+    title?: string,
+    _id?: string,
+}
+
+interface Renderable {
+    renderList: (index: number) => React.Node
+    renderTable: (defaultStyle: Object<Style>) => React.Node
+}
+
+export type ViewProps = {
+    date: Date,
+    duration: string,
+    events: IListTimeEvent,
+    timeStart: number,
+    timeEnd: number,
+    timeDivision: number
+}
+
+type IListTimeEvent = Array<TimeEvent<ITimeEvent>>
+
+export interface IView {
+    renderDay(props: ViewProps): React.Node,
+    renderWeek(props: ViewProps): React.Node,
+    renderMonth(props: ViewProps):React.Node,
+}
+```
 
 ## Examples
+Coming soon
 
-## Questions
+## FAQ
 
 ## License
 This project is licensed under the terms of the MIT license.

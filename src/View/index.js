@@ -24,8 +24,6 @@ export type ViewProps = {
     timeDivision: number
 }
 
-type Props = ViewProps
-
 export interface IView {
     renderDay(props: ViewProps): React.Node,
     renderWeek(props: ViewProps): React.Node,
@@ -33,7 +31,7 @@ export interface IView {
 }
 
 
-export class AbstractView extends React.Component<Props> implements IView {
+export class AbstractView extends React.Component<ViewProps> implements IView {
     static defaultProps = {
         date    : new Date(),
         events  : [],

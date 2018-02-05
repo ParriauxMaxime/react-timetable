@@ -8,6 +8,7 @@ import moment from 'moment'
 import {DURATION, VIEW} from './util/api'
 import type {IListTimeEvent, IView, ViewProps} from './View'
 import {AbstractView} from './View'
+import {TimeEvent} from './Event/TimeEvent'
 
 
 type Map = { name: string, View: AbstractView }
@@ -16,9 +17,6 @@ type ViewMap = Array<Map>
 type Props = ViewProps & {
     view: string,
     viewMap: ViewMap,
-    timeStart: number,
-    timeEnd: number,
-    timeDivision: number,
     onNavigationEvent(Event: any): null,
     onChange(Event: any): null,
 }
@@ -29,7 +27,7 @@ type State = {
     duration: string,
 };
 
-export class TimeTable extends React.Component<Props, State> {
+class TimeTable extends React.Component<Props, State> {
     static defaultProps = {
         date    : new Date(),
         duration: DURATION.week,
@@ -91,7 +89,6 @@ export class TimeTable extends React.Component<Props, State> {
         const views = (this.props.viewMap: ViewMap)
             .filter((e: Map) => e.name === view)
             .map((e: Map) => e.View);
-        console.log(views);
         if (views.length > 0) {
             return views[0]
         }
@@ -129,3 +126,13 @@ export class TimeTable extends React.Component<Props, State> {
         )
     }
 }
+
+export {
+    TimeEvent,
+    AbstractView,
+    List,
+    Table,
+    TimeTable,
+    Pagination
+};
+
