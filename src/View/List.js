@@ -31,8 +31,9 @@ export class List extends AbstractView {
                     {
                         [...props.events].sort(sortDate)
 
-                            .map((p: TimeEvent<ITimeEvent>) => {
-                                return p.renderList()
+                            .map((p: TimeEvent<ITimeEvent>, i: number) => {
+                                console.log(i);
+                                return p.renderList(i)
                             })
                     }
                 </div>

@@ -38,8 +38,8 @@ export class TimeEvent<T: ITimeEvent> implements Renderable {
             moment(end).format(format) === d.format(format)
     }
 
-    renderList = <T>(): React.Node => {
-        const c = this.index
+    renderList = <T>(i: number): React.Node => {
+        const c = i
         const format = 'HH:mm'
         const [s, e] = [moment(this.start).format(format),
             moment(this.end).format(format)]

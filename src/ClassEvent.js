@@ -18,14 +18,13 @@ export class ClassEvent extends TimeEvent<IClassEvent> {
         super(props)
     }
 
-    renderList = <T>(): React.Node => {
-        const c = this.index
+    renderList = <T>(i: number): React.Node => {
         const format = 'HH:mm'
         const {start, end, creator, module} = this
         const [s, e] = [moment(start).format(format), moment(end).format(format)]
         return (
             <div key={this.getKey()}
-                 style={Style.list.eventContainer(c)}>
+                 style={Style.list.eventContainer(i)}>
                 <div role='hour-limit'
                      style={Style.list.hourLimit}>
                     {`${s} - ${e}`}
