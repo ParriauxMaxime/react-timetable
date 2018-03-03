@@ -1,6 +1,6 @@
 {
   "name": "@maximeparriaux/react-timetable",
-  "version": "1.0.0-alpha",
+  "version": "1.0.3-alpha",
   "description": "Highly customizable timetable React component",
   "main": "lib/index.js",
   "module": "es/index.js",

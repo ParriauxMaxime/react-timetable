@@ -9,6 +9,6 @@ export type ITimeEvent = {
 }
 
 export interface Renderable {
-    renderList: (index: number) => React.Node
+    renderList: (index: number) => React.Node,
     renderTable: (defaultStyle: any) => React.Node
 }
