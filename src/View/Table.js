@@ -163,7 +163,7 @@ export class Table extends AbstractView {
          **/
         let CURRENT_NODE = null
         return (
-            <React.Fragment>
+            <div style={{position: 'relative', width: '100%'}} role={"overlay"}>
                 {
                     Table._dayGraph(AbstractView.getToday(sortedEvent, date)).map((e, i) => {
                         const {start, end} = e.event
@@ -179,7 +179,7 @@ export class Table extends AbstractView {
                         if (CURRENT_NODE === null && e.collisions.length !== 1) {
                             CURRENT_NODE = e
                             width = CURRENT_NODE.collisions.length !== 0 ? Math.floor(InitWidth / (CURRENT_NODE.collisions.length)) : InitWidth
-                            left = 0
+                            left = 0;
                         }
                         else if (CURRENT_NODE === null) {
                             width = InitWidth
@@ -203,22 +203,20 @@ export class Table extends AbstractView {
                             }
                         }
                         const firstRow = overlay[0]
-                        const lastRow = overlay[overlay.length]
+                        const lastRow = overlay[overlay.length - 1]
                         const height = (d ? d.getBoundingClientRect().top: lastRow.getBoundingClientRect().top) -
                             (s ? s.getBoundingClientRect().top : firstRow.getBoundingClientRect().top)
-                        console.log(height)
                         const defaultStyle = {
                             position: 'absolute',
-                            left : Math.round(left + s.getBoundingClientRect().left),
-                            right: s.getBoundingClientRect().right,
-                            top  : Math.trunc(s.getBoundingClientRect().top),
+                            left : left,
+                            top  : s.getBoundingClientRect().top - first.getBoundingClientRect().top,
                             height: height,
-                            width: Math.round(width)
+                            width: width
                         }
                         return e.event.renderTable(defaultStyle)
                     })
                 }
-            </React.Fragment>
+            </div>
         )
     }
 
@@ -231,19 +229,30 @@ export class Table extends AbstractView {
                     {moment(date).format('dddd DD/MM')}
                 </div>
                 <hr/>
+                <div role={"view"} style={{display: 'flex', flexDirection: 'row'}}>
+                {
+                    independent ?
+                        <div role={'hours-col'} style={{minWidth: HCW, maxWidth: HCW, justifyContent: 'flex-end'}}>
+                            <div role="contentHOURS"
+                                 style={{...style.flexCenter, ...style.border(), ...style.flexC, ...style.padding('0')}}>
+                                {this._hoursArray().map(this.renderHours.bind(this))}
+                            </div>
+                        </div> :
+                        null
+                }
                 <div role="content"
-                     style={{...style.flexCenter, ...style.border(), ...style.flexC, ...style.padding('0')}}>
+                     style={{...style.flexCenter, ...style.border(), ...style.flexC, ...style.padding('0'), ...{width: '100%'}}}>
+                    {this.state.renderDayEvent({date, events, index})}
                     {
                         hoursArray.map((e, i) => {
                             return (
-                                <div key={`k-${i}`} style={{...style.flexR}}>
-                                    {independent ? this.renderHours(e, i) : null}
+                                <div key={`k-${i}`} style={{...style.flexR, width: '100%'}}>
                                     {this.renderColumn(e, i, index)}
                                 </div>
                             )
                         })
                     }
-                    {this.state.renderDayEvent({date, events, index})}
+                </div>
                 </div>
             </div>
         )

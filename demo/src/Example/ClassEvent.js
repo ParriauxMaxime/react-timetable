@@ -43,7 +43,6 @@ export class ClassEvent extends TimeEvent<IClassEvent> {
 
     renderTable = <T>(defaultStyle): React.Node => {
         const style = {
-            position       : 'absolute',
             backgroundColor: 'rgba(50,50,200,0.9)',
             color          : 'white',
             border         : '1px solid rgba(0, 0, 0, 0.3)',
