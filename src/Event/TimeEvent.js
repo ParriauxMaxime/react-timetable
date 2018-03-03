@@ -1,3 +1,4 @@
+import React from 'react'
 import {defaultStyleList} from '../styles'
 import type {ITimeEvent, Renderable} from './ITimeEvent'
 import moment from 'moment'
@@ -64,7 +65,6 @@ export class TimeEvent<T: ITimeEvent> implements Renderable {
 
     renderTable = <T>(defaultStyle): React.Node => {
         const style = {
-            position       : 'absolute',
             backgroundColor: 'rgba(50,50,200,0.9)',
             color          : 'white',
             border         : '1px solid rgba(0, 0, 0, 0.3)',

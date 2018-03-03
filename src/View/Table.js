@@ -163,14 +163,7 @@ export class Table extends AbstractView {
          **/
         let CURRENT_NODE = null
         return (
-            <div style={{
-                width          : first.getBoundingClientRect().width,
-                height         : last.getBoundingClientRect().bottom - first.getBoundingClientRect().top,
-                left           : first.getBoundingClientRect().left,
-                top            : window.top + first.getBoundingClientRect().top,
-                position       : 'absolute',
-                backgroundColor: 'rgba(255, 0, 0, 0.1)',
-            }}>
+            <React.Fragment>
                 {
                     Table._dayGraph(AbstractView.getToday(sortedEvent, date)).map((e, i) => {
                         const {start, end} = e.event
@@ -180,27 +173,29 @@ export class Table extends AbstractView {
                             overlay[nbRowPerDay * index + ((hs - timeStart) * timeDivision + (ms / (60 / timeDivision)))],
                             overlay[nbRowPerDay * index + ((he - timeStart) * timeDivision + (me / (60 / timeDivision)))],
                         ]
+                        const InitWidth = s.getBoundingClientRect().width
                         let width
                         let left
                         if (CURRENT_NODE === null && e.collisions.length !== 1) {
                             CURRENT_NODE = e
-                            width = CURRENT_NODE.collisions.length !== 0 ? Math.floor(100 / (CURRENT_NODE.collisions.length)) : 100
+                            width = CURRENT_NODE.collisions.length !== 0 ? Math.floor(InitWidth / (CURRENT_NODE.collisions.length)) : InitWidth
                             left = 0
                         }
                         else if (CURRENT_NODE === null) {
-                            width = 100
+                            width = InitWidth
                             left = 0
                         }
                         else {
                             const getPastEvent = (node) => {
+                                //WTF ?
                                 return node.collisions.indexOf(node.event)
                             }
-                            width = CURRENT_NODE.collisions.length !== 0 ? Math.floor(100 / (CURRENT_NODE.collisions.length)) : 100
+                            width = CURRENT_NODE.collisions.length !== 0 ? Math.floor(InitWidth / (CURRENT_NODE.collisions.length)) : InitWidth
                             let tmp = CURRENT_NODE.collisions.slice(getPastEvent(CURRENT_NODE)).indexOf(e.event)
                             if (tmp === -1) {
                                 CURRENT_NODE = e
                                 tmp = CURRENT_NODE.collisions.slice(getPastEvent(CURRENT_NODE)).indexOf(e.event)
-                                width = CURRENT_NODE.collisions.length !== 0 ? Math.floor(100 / (CURRENT_NODE.collisions.length)) : 100
+                                width = CURRENT_NODE.collisions.length !== 0 ? Math.floor(InitWidth/ (CURRENT_NODE.collisions.length)) : InitWidth
                             }
                             left = tmp * width
                             if (CURRENT_NODE.collisions.indexOf(e.event) === CURRENT_NODE.collisions.length - 1) {
@@ -209,18 +204,21 @@ export class Table extends AbstractView {
                         }
                         const firstRow = overlay[0]
                         const lastRow = overlay[overlay.length]
-                        const height = (d ? d.getBoundingClientRect().top : lastRow.getBoundingClientRect().top) -
+                        const height = (d ? d.getBoundingClientRect().top: lastRow.getBoundingClientRect().top) -
                             (s ? s.getBoundingClientRect().top : firstRow.getBoundingClientRect().top)
+                        console.log(height)
                         const defaultStyle = {
-                            height,
-                            width: `${width}%`,
-                            left : `${left}%`,
-                            top  : s.getBoundingClientRect().top - firstRow.getBoundingClientRect().top,
+                            position: 'absolute',
+                            left : Math.round(left + s.getBoundingClientRect().left),
+                            right: s.getBoundingClientRect().right,
+                            top  : Math.trunc(s.getBoundingClientRect().top),
+                            height: height,
+                            width: Math.round(width)
                         }
                         return e.event.renderTable(defaultStyle)
                     })
                 }
-            </div>
+            </React.Fragment>
         )
     }
 

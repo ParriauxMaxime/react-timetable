@@ -25,7 +25,7 @@ export class List extends AbstractView {
         return (
             <div style={defaultStyle.container}>
                 <div style={defaultStyle.dateContainer}>
-                    {moment(props.date).format('dddd DD MMMM YYYY')}
+                    {moment(props.date).format('dddd DD MMMM')}
                 </div>
                 <div style={defaultStyle.eventsContainer}>
                     {
