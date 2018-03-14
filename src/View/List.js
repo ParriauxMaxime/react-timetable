@@ -18,6 +18,8 @@ import {TimeEvent} from '../Event/TimeEvent'
 
 const defaultStyle = defaultStyleList
 
+//TODO : Remove useless day
+
 export class List extends AbstractView {
     static view = VIEW.list
 

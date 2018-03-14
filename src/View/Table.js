@@ -19,6 +19,9 @@ const style = defaultStyleTable
 const HOUR_COLUMNS_WIDTH = 60
 const HCW = HOUR_COLUMNS_WIDTH
 
+//TODO : choose day to show
+//TODO : Clickable cell
+//TODO :
 
 export class Table extends AbstractView {
     static defaultProps = {
@@ -36,11 +39,9 @@ export class Table extends AbstractView {
         }
         this.resizeListener = window.addEventListener('resize', () => {
             this.columns = []
-            this.forceUpdate(() => {
-                this.setState({
-                    renderDayEvent: this.renderDayEvent.bind(this),
-                    columns       : this.columns.slice(this.columns.length / 2)
-                })
+            this.setState({
+                renderDayEvent: this.renderDayEvent.bind(this),
+                columns       : this.columns.slice(this.columns.length / 2)
             })
         })
     }
@@ -127,18 +128,18 @@ export class Table extends AbstractView {
 
     renderDayEvent({date, events, index}) {
         const {timeStart, timeEnd, timeDivision} = this.props
-        let overlay = this.state.columns
+        const overlay = this.state.columns
         if (!overlay.length)
             return null
+        const firstRowTop = overlay[0].getBoundingClientRect().top
+        const lastRowTop = overlay[overlay.length - 1].getBoundingClientRect().top
         const nbRowPerDay = (timeEnd - timeStart + 1) * timeDivision
         const first = overlay[nbRowPerDay * index]
-        const last = overlay[nbRowPerDay * (index + 1) - 1]
         const filterWantedEvents = e => moment(e.start).hour() >= timeStart && moment(e.end).hour() >= timeStart &&
             moment(e.end).hour() <= timeEnd && moment(e.start).hour() <= timeEnd
         const sortedEvent = events
             .sort(sortDate)
             .filter(filterWantedEvents)
-
 
         /**
          * Really.
@@ -175,43 +176,39 @@ export class Table extends AbstractView {
                             overlay[nbRowPerDay * index + ((hs - timeStart) * timeDivision + (ms / (60 / timeDivision)))],
                             overlay[nbRowPerDay * index + ((he - timeStart) * timeDivision + (me / (60 / timeDivision)))],
                         ]
-                        const InitWidth = s.getBoundingClientRect().width
-                        let width
-                        let left
+                        let {width} = s.getBoundingClientRect()
+                        let left = 0
                         if (CURRENT_NODE === null && e.collisions.length !== 1) {
                             CURRENT_NODE = e
-                            width = CURRENT_NODE.collisions.length !== 0 ? Math.floor(InitWidth / (CURRENT_NODE.collisions.length)) : InitWidth
-                            left = 0
+                            width = CURRENT_NODE.collisions.length !== 0 ? Math.floor(width / (CURRENT_NODE.collisions.length)) : width
                         }
                         else if (CURRENT_NODE === null) {
-                            width = InitWidth
-                            left = 0
                         }
                         else {
                             const getPastEvent = (node) => {
                                 //WTF ?
                                 return node.collisions.indexOf(node.event)
                             }
-                            width = CURRENT_NODE.collisions.length !== 0 ? Math.floor(InitWidth / (CURRENT_NODE.collisions.length)) : InitWidth
+                            width = CURRENT_NODE.collisions.length !== 0 ? Math.floor(width / (CURRENT_NODE.collisions.length)) : width
                             let tmp = CURRENT_NODE.collisions.slice(getPastEvent(CURRENT_NODE)).indexOf(e.event)
                             if (tmp === -1) {
                                 CURRENT_NODE = e
-                                tmp = CURRENT_NODE.collisions.slice(getPastEvent(CURRENT_NODE)).indexOf(e.event)
-                                width = CURRENT_NODE.collisions.length !== 0 ? Math.floor(InitWidth / (CURRENT_NODE.collisions.length)) : InitWidth
                             }
                             left = tmp * width
                             if (CURRENT_NODE.collisions.indexOf(e.event) === CURRENT_NODE.collisions.length - 1) {
                                 CURRENT_NODE = null
                             }
                         }
-                        const firstRow = overlay[0]
-                        const lastRow = overlay[overlay.length - 1]
-                        const height = (d ? d.getBoundingClientRect().top : lastRow.getBoundingClientRect().top) -
-                            (s ? s.getBoundingClientRect().top : firstRow.getBoundingClientRect().top)
+
+                        if (!s) {
+                            console.trace('This must be a bug.')
+                            return null
+                        }
+                        const height = (d ? d.getBoundingClientRect().top : lastRowTop) - (s.getBoundingClientRect().top)
                         const defaultStyle = {
                             position: 'absolute',
                             left    : left,
-                            top     : s.getBoundingClientRect().top - first.getBoundingClientRect().top,
+                            top     : s.getBoundingClientRect().top - firstRowTop,
                             height  : height,
                             width   : width
                         }

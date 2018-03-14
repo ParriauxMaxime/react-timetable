@@ -21,7 +21,7 @@ export type ViewProps = {
     events: IListTimeEvent,
     timeStart: number,
     timeEnd: number,
-    timeDivision: number
+    timeDivision: number,
 }
 
 export interface IView {
@@ -30,12 +30,21 @@ export interface IView {
     renderMonth(props: ViewProps):React.Node,
 }
 
+//TODO : Implement progress
 
 export class AbstractView extends React.Component<ViewProps> implements IView {
     static defaultProps = {
         date    : new Date(),
         events  : [],
         duration: DURATION.day,
+    }
+
+    constructor(props: ViewProps) {
+        super(props);
+        const {lifeCycle} = this.props
+        if (lifeCycle) {
+            this.lifeCycle = lifeCycle
+        }
     }
 
     __IsNotImplemented(name: string): React.Node {
@@ -134,6 +143,7 @@ export class AbstractView extends React.Component<ViewProps> implements IView {
     render(): React.Node {
         const events = AbstractView.getEvents(this.props)
         const p: ViewProps = ({
+            ...this.props,
             date    : (this.props.date: Date),
             duration: (this.props.duration: string),
             events  : (events: IListTimeEvent)

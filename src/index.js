@@ -1,12 +1,12 @@
 // @flow
 
 import * as React from 'react'
-import {Pagination} from './Pagination'
+import {Pagination as PaginationDefault} from './Pagination'
 import {List} from './View/List'
 import {Table} from './View/Table'
 import moment from 'moment'
 import {DURATION, VIEW} from './util/api'
-import type {IListTimeEvent, IView, ViewProps} from './View'
+import type {IListTimeEvent, ViewProps} from './View'
 import {AbstractView} from './View'
 import {TimeEvent} from './Event/TimeEvent'
 
@@ -19,6 +19,9 @@ type Props = ViewProps & {
     viewMap: ViewMap,
     onNavigationEvent(Event: any): null,
     onChange(Event: any): null,
+    viewLifeCycle?: Object,
+    pagination: { component: any, props: any},
+    className?: string
 }
 
 type State = {
@@ -29,19 +32,23 @@ type State = {
 
 class TimeTable extends React.Component<Props, State> {
     static defaultProps = {
-        date    : new Date(),
-        duration: DURATION.week,
-        events  : [],
-        view    : VIEW.table,
-        viewMap : [{
+        date        : new Date(),
+        duration    : DURATION.week,
+        events      : [],
+        view        : VIEW.table,
+        pagination : {
+            component: PaginationDefault,
+            props: {}
+        },
+        viewMap     : [{
             name: VIEW.list,
             View: List
         }, {
             name: VIEW.table,
             View: Table
         }],
-        timeStart: 8,
-        timeEnd: 20,
+        timeStart   : 8,
+        timeEnd     : 20,
         timeDivision: 4
     }
 
@@ -50,12 +57,16 @@ class TimeTable extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props)
         const {view, duration, date} = this.props
+        this.viewLifeCycle = this.props.viewLifeCycle || null
         this.state = {
+            progress: false,
             view,
             duration,
             date
         }
     }
+
+
 
     onNavigationEvent(Event: any) {
         const {duration, date} = this.state
@@ -79,16 +90,14 @@ class TimeTable extends React.Component<Props, State> {
     }
 
     onChange(Event: any) {
-        this.setState({[Event.type]: Event.value}, () => {
-            console.log('Register new state', {[Event.type]: Event.value})
-        })
+        this.setState({[Event.type]: Event.value})
     }
 
     renderView(): ?AbstractView {
         const {view} = this.state
         const views = (this.props.viewMap: ViewMap)
             .filter((e: Map) => e.name === view)
-            .map((e: Map) => e.View);
+            .map((e: Map) => e.View)
         if (views.length > 0) {
             return views[0]
         }
@@ -97,6 +106,15 @@ class TimeTable extends React.Component<Props, State> {
 
 
     render() {
+        const paginationProps = {...{
+            onNavigationEvent: this.onNavigationEvent.bind(this),
+                onChange         : this.onChange.bind(this),
+                duration         : this.state.duration,
+                date             : this.state.date,
+                view             : this.state.view,
+                viewMap          : this.props.viewMap,
+                className        : this.props.className || ''
+        }, ...this.props.pagination.props}
         const {timeStart, timeEnd, timeDivision} = this.props
         const props = ({
             duration: this.state.duration,
@@ -106,21 +124,15 @@ class TimeTable extends React.Component<Props, State> {
             timeDivision,
             timeEnd
         }: ViewProps)
-        const View : ?AbstractView = this.renderView();
+        const View: ?AbstractView = this.renderView()
+        const Pagination = this.props.pagination.component
         return (
             <React.Fragment>
-                <Pagination {...{
-                    onNavigationEvent: this.onNavigationEvent.bind(this),
-                    onChange         : this.onChange.bind(this),
-                    duration         : this.state.duration,
-                    date             : this.state.date,
-                    view             : this.state.view,
-                    viewMap          : this.props.viewMap
-                }}/>
+                <Pagination {...paginationProps} />
                 <hr/>
                 {
                     // $FlowFixMe: Flow should implement better comprenhension on abstract structure
-                        <View {...props}/>
+                    <View {...{...props, lifeCycle: this.viewLifeCycle}} />
                 }
             </React.Fragment>
         )
@@ -133,6 +145,8 @@ export {
     List,
     Table,
     TimeTable,
-    Pagination
-};
+    DURATION,
+    VIEW,
+    PaginationDefault
+}
 

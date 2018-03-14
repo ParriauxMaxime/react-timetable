@@ -14,6 +14,8 @@ class Demo extends Component{
                 </h1>
                 <TimeTable events={events}
                            duration={'day'}
+                           view={'table'}
+                           duration={"week"}
                            date={new Date()}/>
             </div>
         )
